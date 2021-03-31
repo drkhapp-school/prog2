@@ -7,6 +7,10 @@ import java.io.*;
 import java.text.DecimalFormat;
 
 public class Main extends JFrame {
+    private static final int NUMBER_INVALID = 0; // Message d'erreur: Nombre invalid
+    private static final int DA_EXIST = 1; // Message d'erreur: DA déjà dans le texte
+    private static final int SELECTION_INVALID = 2; // Message d'erreur: Aucune selection
+
     JFrame frame;
 
     JTable tabNotes;
@@ -35,8 +39,8 @@ public class Main extends JFrame {
     JPanel panWest;
     JPanel panSouth;
 
-    String[] colNames = {"DA", "Examen 1", "Examen 2", "TP 1", "TP 2", "Total %"};
-    String[] colNamesStats = {"", "", "", "", "", ""};
+    String[] colNotes = {"DA", "Examen 1", "Examen 2", "TP 1", "TP 2", "Total %"};
+    String[] colStats = {"", "", "", "", "", ""};
 
     Dimension dimMin = new Dimension(1280, 720);
     Dimension dimLab = new Dimension(150, 30);
@@ -68,6 +72,7 @@ public class Main extends JFrame {
         panEast.setLayout(new FlowLayout(FlowLayout.LEFT));
         panEast.setPreferredSize(dimEast);
 
+        // Génération des JTextFields et JLabels
         labDA = new JLabel("DA");
         labDA.setPreferredSize(dimLab);
         txfDA = new JTextField("");
@@ -93,7 +98,7 @@ public class Main extends JFrame {
         txfTp2 = new JTextField("");
         txfTp2.setPreferredSize(dimTxf);
 
-
+        // Génération des JButtons
         btnAjouter = new JButton("Ajouter");
         btnAjouter.setPreferredSize(dimBtn);
         btnAjouter.addActionListener(e -> btnAjouterAction());
@@ -119,10 +124,8 @@ public class Main extends JFrame {
         panEast.add(btnAjouter);
         panEast.add(btnModifier);
         panEast.add(btnSupprimer);
-
         frame.add(panEast, BorderLayout.EAST);
     }
-
 
     public void createPanWest() throws IOException {
         panWest = new JPanel();
@@ -130,7 +133,7 @@ public class Main extends JFrame {
         panWest.setPreferredSize(dimWest);
 
         // Génération du tableau de notes
-        mdlNotes = new DefaultTableModel(colNames, 0) {
+        mdlNotes = new DefaultTableModel(colNotes, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -166,7 +169,7 @@ public class Main extends JFrame {
         scroll.setPreferredSize(new Dimension(600, 500));
 
         // Génération du tableau de statistiques
-        mdlStats = new DefaultTableModel(colNamesStats, 4) {
+        mdlStats = new DefaultTableModel(colStats, 4) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -189,7 +192,6 @@ public class Main extends JFrame {
 
         panWest.add(scroll);
         panWest.add(scrollStats);
-
         frame.add(panWest, BorderLayout.WEST);
     }
 
@@ -200,35 +202,18 @@ public class Main extends JFrame {
         btnQuitter = new JButton("Quitter");
         btnQuitter.setPreferredSize(dimBtn);
         btnQuitter.addActionListener(e -> {
-                    try {
-                        btnQuitterAction();
-                    } catch (IOException ioException) {
-                        ioException.printStackTrace();
-                    }
-                }
-        );
+            try {
+                btnQuitterAction();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
 
         panSouth.add(btnQuitter);
-
         frame.add(panSouth, BorderLayout.SOUTH);
     }
 
     // --- JPanel Méthodes --- //
-
-
-    private void sendErrorMessage(String type) {
-        if ("numberInvalid".equals(type)) {
-            JOptionPane.showMessageDialog(frame, "Entrée invalide.\nAssurer qu'il y a juste des nombres en bas de 2 147 483 647.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void sendErrorMessage(String type, int da) {
-        switch (type) {
-            case ("daExists") -> JOptionPane.showMessageDialog(frame, "Le DA " + da + " existe déjà.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
-            case ("daMissing") -> JOptionPane.showMessageDialog(frame, "Le DA " + da + " n'a aucune entrée", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     private void btnAjouterAction() {
         int[][] tab = Utils.convertT2d(mdlNotes); // tableau 2d des notes
         String[] data = new String[]{ // tableau de l'information
@@ -240,14 +225,14 @@ public class Main extends JFrame {
         };
         int da; // da de la personne
 
-        if (!isInteger(data)) {
-            sendErrorMessage("numberInvalid");
+        if (notInteger(data)) {
+            sendErrorMessage(NUMBER_INVALID);
             return;
         }
 
         da = Integer.parseInt(data[0]);
         if (!Utils.isPresentDA(tab, da)) {
-            sendErrorMessage("daExists", da);
+            sendErrorMessage(DA_EXIST);
             return;
         }
 
@@ -256,7 +241,7 @@ public class Main extends JFrame {
     }
 
     private void btnModifierAction() {
-        int[][] tab = Utils.convertT2d(mdlNotes); // tableau 2d des notews
+        int row = tabNotes.getSelectedRow();
         String[] data = new String[]{ // tableau de l'information
                 txfDA.getText(),
                 txfEx1.getText(),
@@ -264,42 +249,31 @@ public class Main extends JFrame {
                 txfTp1.getText(),
                 txfTp2.getText()
         };
-        int da; // da de la personne
 
-        if (!isInteger(data)) {
-            sendErrorMessage("numberInvalid");
+        if (row == -1) {
+            sendErrorMessage(SELECTION_INVALID);
             return;
         }
 
-        da = Integer.parseInt(data[0]);
-        if (Utils.isPresentDA(tab, da)) {
-            sendErrorMessage("daMissing", da);
+        if (notInteger(data)) {
+            sendErrorMessage(NUMBER_INVALID);
             return;
         }
 
-        int row = Utils.getRowFromDA(tab, da);
-        mdlNotes.removeRow(row);
-        mdlNotes.insertRow(row, data);
+        for (int i = 0; i < data.length; i++) {
+            mdlNotes.setValueAt(data[i], row, i);
+        }
+
         updateStats();
     }
 
     private void btnSupprimerAction() {
-        int[][] tab = Utils.convertT2d(mdlNotes);
-        String textDA = txfDA.getText();
-
-
-        if (!isInteger(textDA)) {
-            sendErrorMessage("numberInvalid");
+        int row = tabNotes.getSelectedRow();
+        if (row == -1) {
+            sendErrorMessage(SELECTION_INVALID);
             return;
         }
 
-        int da = Integer.parseInt(textDA);
-        if (Utils.isPresentDA(tab, da)) {
-            sendErrorMessage("daMissing", da);
-            return;
-        }
-
-        int row = Utils.getRowFromDA(tab, da);
         mdlNotes.removeRow(row);
         updateStats();
     }
@@ -316,9 +290,21 @@ public class Main extends JFrame {
     }
 
     // --- Méthodes --- //
-
     public static void main(String[] args) throws IOException {
         new Main();
+    }
+
+    /**
+     * Génère un message d'erreur selon le contexte
+     *
+     * @param type type d'erreur, soit NUMBER_INVALID pour un nombre invalid, DA_EXIST pour un DA existant, ou SELECTION_INVALID pour une sélection null
+     */
+    private void sendErrorMessage(int type) {
+        switch (type) {
+            case (NUMBER_INVALID) -> JOptionPane.showMessageDialog(frame, "Entrée invalide.\nAssurer que les notes sont entre 0 et 100, et que le DA est un nombre positif en bas de 2 147 483 647.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
+            case (DA_EXIST) -> JOptionPane.showMessageDialog(frame, "Le DA existe déjà.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
+            case (SELECTION_INVALID) -> JOptionPane.showMessageDialog(frame, "Aucune ligne sélectionnée.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
@@ -326,31 +312,31 @@ public class Main extends JFrame {
      */
     private void tabNotesSelectionChange() {
         int row = tabNotes.getSelectedRow();
-        txfDA.setText((String) tabNotes.getValueAt(row, 0));
-        txfEx1.setText((String) tabNotes.getValueAt(row, 1));
-        txfEx2.setText((String) tabNotes.getValueAt(row, 2));
-        txfTp1.setText((String) tabNotes.getValueAt(row, 3));
-        txfTp2.setText((String) tabNotes.getValueAt(row, 4));
+        txfDA.setText(Utils.valueToString(mdlNotes, row, 0));
+        txfEx1.setText(Utils.valueToString(mdlNotes, row, 1));
+        txfEx2.setText(Utils.valueToString(mdlNotes, row, 2));
+        txfTp1.setText(Utils.valueToString(mdlNotes, row, 3));
+        txfTp2.setText(Utils.valueToString(mdlNotes, row, 4));
     }
 
     /**
-     * Modifie le tableau tabStats avec les nouvelles informations
+     * Modifie la colonne de totaux et le tableau tabStats avec les nouvelles informations
      */
     private void updateStats() {
-        DecimalFormat df = new DecimalFormat("0.00");
-        int[][] tab;
-        int moyenne;
+        DecimalFormat df = new DecimalFormat("0.00"); // Format des pourcentages
+        int[][] tab; // Tableau des notes
+        int moyenne; // Moyenne pour total
 
         for (int i = 0; i < mdlNotes.getRowCount(); i++) {
             moyenne = 0;
             for (int j = 1; j <= 4; j++) {
-                moyenne += Integer.parseInt(mdlNotes.getValueAt(i, j).toString());
+                moyenne += Utils.valueToInt(mdlNotes, i, j);
             }
             moyenne = moyenne / 4;
             mdlNotes.setValueAt(moyenne, i, 5);
         }
 
-        tab = Utils.convertT2d(mdlNotes); //Tableau 2d de tabNotes
+        tab = Utils.convertT2d(mdlNotes);
 
         for (int i = 1; i <= 5; i++) {
             mdlStats.setValueAt(df.format(Utils.moyenneEval(tab, i)), 0, i);
@@ -365,8 +351,8 @@ public class Main extends JFrame {
      */
     private void loadData() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("notes.txt"));
-        String[] arr;
-        String line;
+        String[] arr; // Tableau contenant les données
+        String line; // Ligne présentement en lecture
 
         while ((line = reader.readLine()) != null) {
             arr = line.split(" ");
@@ -381,15 +367,15 @@ public class Main extends JFrame {
      */
     private void saveData() throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter("notes.txt", false));
-        String data;
+        String data; // String à enregistrer dans le fichier
 
-        for (int i = 0; i < tabNotes.getRowCount(); i++) {
+        for (int i = 0; i < mdlNotes.getRowCount(); i++) {
             for (int j = 0; j < 5; j++) {
-                data = (String) tabNotes.getValueAt(i, j);
+                data = Utils.valueToString(mdlNotes, i, j);
                 writer.write(data);
                 if (j < 4) {
                     writer.write(" ");
-                } else if (i < tabNotes.getRowCount() - 1) {
+                } else if (i < mdlNotes.getRowCount() - 1) {
                     writer.newLine();
                 }
             }
@@ -399,37 +385,29 @@ public class Main extends JFrame {
     }
 
     /**
-     * Vérifie si un string est un integer valid
-     *
-     * @param str String à évaluer
-     * @return true si le string est un nombre, sinon false
-     */
-    private boolean isInteger(String str) {
-        try {
-            Integer.parseInt(str);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Vérifie si un array de string est un array de integer valid
+     * Vérifie si les notes ne sont pas des nombres possibles
+     * Première colonne doit être positif
+     * Deuxième jusqu'à la dernière colonne doit être entre 0 et 100
      *
      * @param arr Tableau de string à évaluer
-     * @return true si les strings sont des integers, sinon false
+     * @return true si un string n'est pas un nombre, sinon false
      */
-    private boolean isInteger(String[] arr) {
-        for (int i = 0; i < arr.length; i++) {
+    private boolean notInteger(String[] arr) {
+        boolean invalid = false; // si c'est pas un nombre
+        int i = 0; // int pour la boucle
+
+        while (i < arr.length && !invalid) {
             try {
-                Integer.parseInt(arr[i]);
+                int test = Integer.parseInt(arr[i]);
+                if (test <= 0 || (i > 0 && test >= 100)) {
+                    invalid = true;
+                }
                 i++;
             } catch (NumberFormatException e) {
-                return false;
+                invalid = true;
             }
         }
 
-        return true;
+        return invalid;
     }
-
 }
