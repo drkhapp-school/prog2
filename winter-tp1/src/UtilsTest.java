@@ -1,8 +1,12 @@
+/**
+ * Objectif: Teste unitaires pour tester les méthodes utilitaires
+ *
+ * @author: Jean-Philippe Miguel-Gagnon
+ * Session H2021
+ */
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import javax.swing.table.DefaultTableModel;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Util Tests")

@@ -1,3 +1,11 @@
+/**
+ * Objectif: Méthodes utilitaires pour faciliter les méthodes dans la classe Main
+ *
+ * @author: Jean-Philippe Miguel-Gagnon
+ * Session H2021
+ */
+
+
 import javax.swing.table.DefaultTableModel;
 
 public class Utils {
@@ -10,9 +18,9 @@ public class Utils {
      */
     public static double moyenneEval(int[][] tab, int col) {
         double moyenne = 0; // moyenne à retourner
-        for (int[] ints : tab) {
+        for (int[] ints : tab)
             moyenne += ints[col];
-        }
+
         moyenne = moyenne / tab.length;
         return moyenne;
     }
@@ -26,11 +34,10 @@ public class Utils {
      */
     public static int minEval(int[][] tab, int col) {
         int min = tab[0][col]; // minimum à retourner
-        for (int[] ints : tab) {
-            if (ints[col] < min) {
+        for (int[] ints : tab)
+            if (ints[col] < min)
                 min = ints[col];
-            }
-        }
+
         return min;
     }
 
@@ -43,11 +50,10 @@ public class Utils {
      */
     public static int maxEval(int[][] tab, int col) {
         int max = tab[0][col]; // maximum à retourner
-        for (int[] ints : tab) {
-            if (ints[col] > max) {
+        for (int[] ints : tab)
+            if (ints[col] > max)
                 max = ints[col];
-            }
-        }
+
         return max;
     }
 
@@ -62,11 +68,9 @@ public class Utils {
         int col = model.getColumnCount(); // nombre de colonne
         int[][] tab = new int[row][col]; // tableau à retourner
 
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
+        for (int i = 0; i < row; i++)
+            for (int j = 0; j < col; j++)
                 tab[i][j] = valueToInt(model, i, j);
-            }
-        }
 
         return tab;
     }
@@ -96,12 +100,12 @@ public class Utils {
      */
     private static int partition(int[][] tab, int[] tabInd, int col, int g, int d) {
         int pivot = tab[tabInd[d]][col];
-        for (int i = g; i < d; i++) {
+        for (int i = g; i < d; i++)
             if (tab[tabInd[i]][col] < pivot) {
                 permute(tabInd, i, g);
                 g++;
             }
-        }
+
         permute(tabInd, g, d);
         return g;
     }
@@ -160,9 +164,8 @@ public class Utils {
      */
     public static boolean isPresentDA(int[][] tab, int search) {
         int[] tabIndex = new int[tab.length]; // tableau d'index
-        for (int i = 0; i < tabIndex.length; i++) {
+        for (int i = 0; i < tabIndex.length; i++)
             tabIndex[i] = i;
-        }
 
         quickSort(tab, tabIndex, 0, 0, tab.length - 1);
         return fouilleDichoDa(tab, tabIndex, search) == -1;

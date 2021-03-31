@@ -1,3 +1,10 @@
+/**
+ * Objectif: Application permettant de gérer des notes d'un groupe d'élèves et de créer des statistiques
+ *
+ * @author: Jean-Philippe Miguel-Gagnon
+ * Session H2021
+ */
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -51,9 +58,8 @@ public class Main extends JFrame {
     Dimension dimSouth = new Dimension(100, 50);
 
     // --- Constructeur --- //
-
     public Main() throws IOException {
-        frame = new JFrame("Jean-Philippe Miguel-Gagnon - 1927230");
+        frame = new JFrame("Jean-Philippe Miguel-Gagnon + 1927230");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(1280, 720);
         frame.setMinimumSize(dimMin);
@@ -135,10 +141,9 @@ public class Main extends JFrame {
         // Génération du tableau de notes
         mdlNotes = new DefaultTableModel(colNotes, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
+
         tabNotes = new JTable(mdlNotes);
         tabNotes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tabNotes.getSelectionModel().addListSelectionListener(e -> {
@@ -147,14 +152,10 @@ public class Main extends JFrame {
         });
         tabNotes.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
+            public void keyTyped(KeyEvent e) {}
 
             @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
+            public void keyPressed(KeyEvent e) {}
 
             @Override
             public void keyReleased(KeyEvent e) {
@@ -171,10 +172,9 @@ public class Main extends JFrame {
         // Génération du tableau de statistiques
         mdlStats = new DefaultTableModel(colStats, 4) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+            public boolean isCellEditable(int row, int column) { return false; }
         };
+
         tabStats = new JTable(mdlStats);
         tabStats.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         mdlStats.setValueAt("Moyenne", 0, 0);
@@ -213,35 +213,38 @@ public class Main extends JFrame {
         frame.add(panSouth, BorderLayout.SOUTH);
     }
 
-    // --- JPanel Méthodes --- //
+    // --- JPanel Méthodes -- //
+    private void tabNotesSelectionChange() {
+        int row = tabNotes.getSelectedRow();
+        txfDA.setText(Utils.valueToString(mdlNotes, row, 0));
+        txfEx1.setText(Utils.valueToString(mdlNotes, row, 1));
+        txfEx2.setText(Utils.valueToString(mdlNotes, row, 2));
+        txfTp1.setText(Utils.valueToString(mdlNotes, row, 3));
+        txfTp2.setText(Utils.valueToString(mdlNotes, row, 4));
+    }
+
     private void btnAjouterAction() {
         int[][] tab = Utils.convertT2d(mdlNotes); // tableau 2d des notes
-        String[] data = new String[]{ // tableau de l'information
+        String[] arr = new String[]{ // tableau de l'information
                 txfDA.getText(),
                 txfEx1.getText(),
                 txfEx2.getText(),
                 txfTp1.getText(),
                 txfTp2.getText()
         };
-        int da; // da de la personne
 
-        if (notInteger(data)) {
+        if (notInteger(arr))
             sendErrorMessage(NUMBER_INVALID);
-            return;
-        }
-
-        da = Integer.parseInt(data[0]);
-        if (!Utils.isPresentDA(tab, da)) {
+        else if (!Utils.isPresentDA(tab, Integer.parseInt(arr[0])))
             sendErrorMessage(DA_EXIST);
-            return;
+        else {
+            mdlNotes.addRow(arr);
+            updateStats();
         }
-
-        mdlNotes.addRow(data);
-        updateStats();
     }
 
     private void btnModifierAction() {
-        int row = tabNotes.getSelectedRow();
+        int row = tabNotes.getSelectedRow(); // ligne sélectionnée
         String[] data = new String[]{ // tableau de l'information
                 txfDA.getText(),
                 txfEx1.getText(),
@@ -250,32 +253,33 @@ public class Main extends JFrame {
                 txfTp2.getText()
         };
 
-        if (row == -1) {
+        if (row == -1)
             sendErrorMessage(SELECTION_INVALID);
-            return;
-        }
-
-        if (notInteger(data)) {
+        else if (notInteger(data))
             sendErrorMessage(NUMBER_INVALID);
-            return;
-        }
+        else {
+            for (int i = 0; i < data.length; i++)
+                mdlNotes.setValueAt(data[i], row, i);
 
-        for (int i = 0; i < data.length; i++) {
-            mdlNotes.setValueAt(data[i], row, i);
+            updateStats();
         }
-
-        updateStats();
     }
 
     private void btnSupprimerAction() {
-        int row = tabNotes.getSelectedRow();
-        if (row == -1) {
-            sendErrorMessage(SELECTION_INVALID);
-            return;
-        }
+        int row = tabNotes.getSelectedRow(); // ligne sélectionnée
 
-        mdlNotes.removeRow(row);
-        updateStats();
+        if (row == -1)
+            sendErrorMessage(SELECTION_INVALID);
+        else {
+            mdlNotes.removeRow(row);
+            txfDA.setText(null);
+            txfEx1.setText(null);
+            txfEx2.setText(null);
+            txfTp1.setText(null);
+            txfTp2.setText(null);
+
+            updateStats();
+        }
     }
 
     private void btnQuitterAction() throws IOException {
@@ -308,18 +312,6 @@ public class Main extends JFrame {
     }
 
     /**
-     * Modifie les JTextFields avec les valeur du tableau
-     */
-    private void tabNotesSelectionChange() {
-        int row = tabNotes.getSelectedRow();
-        txfDA.setText(Utils.valueToString(mdlNotes, row, 0));
-        txfEx1.setText(Utils.valueToString(mdlNotes, row, 1));
-        txfEx2.setText(Utils.valueToString(mdlNotes, row, 2));
-        txfTp1.setText(Utils.valueToString(mdlNotes, row, 3));
-        txfTp2.setText(Utils.valueToString(mdlNotes, row, 4));
-    }
-
-    /**
      * Modifie la colonne de totaux et le tableau tabStats avec les nouvelles informations
      */
     private void updateStats() {
@@ -329,9 +321,9 @@ public class Main extends JFrame {
 
         for (int i = 0; i < mdlNotes.getRowCount(); i++) {
             moyenne = 0;
-            for (int j = 1; j <= 4; j++) {
-                moyenne += Utils.valueToInt(mdlNotes, i, j);
-            }
+            for (int j = 1; j <= 4; j++)
+                moyenne += Integer.parseInt(mdlNotes.getValueAt(i, j).toString());
+
             moyenne = moyenne / 4;
             mdlNotes.setValueAt(moyenne, i, 5);
         }
@@ -347,7 +339,7 @@ public class Main extends JFrame {
     }
 
     /**
-     * Insère l'information dans le fichier notes.txt dans le tableau tabNotes
+     * Lecture de notes.txt pour insérer dans le tableau de notes
      */
     private void loadData() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("notes.txt"));
@@ -363,7 +355,7 @@ public class Main extends JFrame {
     }
 
     /**
-     * Sauvegarde le tableau tabNotes dans un fichier notes.txt
+     * Sauvegarde du tableau de notes dans notes.txt
      */
     private void saveData() throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter("notes.txt", false));
@@ -373,11 +365,10 @@ public class Main extends JFrame {
             for (int j = 0; j < 5; j++) {
                 data = Utils.valueToString(mdlNotes, i, j);
                 writer.write(data);
-                if (j < 4) {
+                if (j < 4)
                     writer.write(" ");
-                } else if (i < mdlNotes.getRowCount() - 1) {
+                else if (i < mdlNotes.getRowCount() - 1)
                     writer.newLine();
-                }
             }
         }
 
