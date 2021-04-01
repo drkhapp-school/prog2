@@ -1,7 +1,7 @@
 /**
  * Objectif: Application permettant de gérer des notes d'un groupe d'élèves et de créer des statistiques
  *
- * @author: Jean-Philippe Miguel-Gagnon
+ * @author: Jean-Philippe Miguel-Gagnon - 1927230
  * Session H2021
  */
 
@@ -73,6 +73,9 @@ public class Main extends JFrame {
         frame.setVisible(true);
     }
 
+    /**
+     * Constructeur du panneau de droite
+     */
     public void createPanEast() {
         panEast = new JPanel();
         panEast.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -133,6 +136,9 @@ public class Main extends JFrame {
         frame.add(panEast, BorderLayout.EAST);
     }
 
+    /**
+     * Constructeur du panneau de gauche
+     */
     public void createPanWest() throws IOException {
         panWest = new JPanel();
         panWest.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -176,7 +182,8 @@ public class Main extends JFrame {
         };
 
         tabStats = new JTable(mdlStats);
-        tabStats.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tabStats.setFocusable(false);
+        tabStats.setRowSelectionAllowed(false);
         mdlStats.setValueAt("Moyenne", 0, 0);
         mdlStats.setValueAt("Note minimum", 1, 0);
         mdlStats.setValueAt("Note maximum", 2, 0);
@@ -187,14 +194,19 @@ public class Main extends JFrame {
         scrollStats.setPreferredSize(new Dimension(600, 71));
 
         // Sélectionner la première entrée
-        tabNotes.changeSelection(0, 0, false, false);
-        tabNotesSelectionChange();
+        try {
+            tabNotes.setRowSelectionInterval(0, 0);
+            tabNotesSelectionChange();
+        } catch (IllegalArgumentException ignored) {}
 
         panWest.add(scroll);
         panWest.add(scrollStats);
         frame.add(panWest, BorderLayout.WEST);
     }
 
+    /**
+     * Constructeur du panneau du bas
+     */
     public void createPanSouth() {
         panSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panSouth.setPreferredSize(dimSouth);
@@ -213,7 +225,11 @@ public class Main extends JFrame {
         frame.add(panSouth, BorderLayout.SOUTH);
     }
 
-    // --- JPanel Méthodes -- //
+    // --- Action Listeners -- //
+
+    /**
+     * Mis à jour des JTextFields dans le panneau de droite
+     */
     private void tabNotesSelectionChange() {
         int row = tabNotes.getSelectedRow();
         txfDA.setText(Utils.valueToString(mdlNotes, row, 0));
@@ -223,6 +239,9 @@ public class Main extends JFrame {
         txfTp2.setText(Utils.valueToString(mdlNotes, row, 4));
     }
 
+    /**
+     * Ajout d'une nouvelle entrée dans la base de données
+     */
     private void btnAjouterAction() {
         int[][] tab = Utils.convertT2d(mdlNotes); // tableau 2d des notes
         String[] arr = new String[]{ // tableau de l'information
@@ -243,6 +262,9 @@ public class Main extends JFrame {
         }
     }
 
+    /**
+     * Modification d'une entrée dans la base de données
+     */
     private void btnModifierAction() {
         int row = tabNotes.getSelectedRow(); // ligne sélectionnée
         String[] data = new String[]{ // tableau de l'information
@@ -265,6 +287,9 @@ public class Main extends JFrame {
         }
     }
 
+    /**
+     * Supprime une entrée dans la base de données
+     */
     private void btnSupprimerAction() {
         int row = tabNotes.getSelectedRow(); // ligne sélectionnée
 
@@ -282,6 +307,9 @@ public class Main extends JFrame {
         }
     }
 
+    /**
+     * Quitter l'application en offrant l'option de sauvegarder
+     */
     private void btnQuitterAction() throws IOException {
         int rep = JOptionPane.showConfirmDialog(frame, "Voulez-vous sauvegarder?", "Confirmation de fermeture", JOptionPane.YES_NO_CANCEL_OPTION);
         switch (rep) {
@@ -294,6 +322,7 @@ public class Main extends JFrame {
     }
 
     // --- Méthodes --- //
+
     public static void main(String[] args) throws IOException {
         new Main();
     }
@@ -328,9 +357,12 @@ public class Main extends JFrame {
             mdlNotes.setValueAt(moyenne, i, 5);
         }
 
-        tab = Utils.convertT2d(mdlNotes);
+        if (mdlNotes.getRowCount() == 0)
+            tab = new int[][]{{0, 0, 0, 0, 0, 0}};
+        else
+            tab = Utils.convertT2d(mdlNotes);
 
-        for (int i = 1; i <= 5; i++) {
+        for (int i = 1; i < tab[0].length; i++) {
             mdlStats.setValueAt(df.format(Utils.moyenneEval(tab, i)), 0, i);
             mdlStats.setValueAt(Utils.minEval(tab, i), 1, i);
             mdlStats.setValueAt(Utils.maxEval(tab, i), 2, i);
@@ -343,8 +375,8 @@ public class Main extends JFrame {
      */
     private void loadData() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("notes.txt"));
-        String[] arr; // Tableau contenant les données
-        String line; // Ligne présentement en lecture
+        String[] arr; // tableau contenant les données
+        String line; // ligne présentement en lecture
 
         while ((line = reader.readLine()) != null) {
             arr = line.split(" ");
@@ -390,9 +422,9 @@ public class Main extends JFrame {
         while (i < arr.length && !invalid) {
             try {
                 int test = Integer.parseInt(arr[i]);
-                if (test <= 0 || (i > 0 && test >= 100)) {
+                if (test <= 0 || (i > 0 && test >= 100))
                     invalid = true;
-                }
+
                 i++;
             } catch (NumberFormatException e) {
                 invalid = true;

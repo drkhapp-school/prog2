@@ -1,7 +1,7 @@
 /**
  * Objectif: Méthodes utilitaires pour faciliter les méthodes dans la classe Main
  *
- * @author: Jean-Philippe Miguel-Gagnon
+ * @author: Jean-Philippe Miguel-Gagnon - 1927230
  * Session H2021
  */
 
@@ -21,8 +21,7 @@ public class Utils {
         for (int[] ints : tab)
             moyenne += ints[col];
 
-        moyenne = moyenne / tab.length;
-        return moyenne;
+        return moyenne / tab.length;
     }
 
     /**
@@ -173,9 +172,10 @@ public class Utils {
 
     /**
      * Retourne la valeur d'une table en int
+     *
      * @param model le DefaultTableModel à évaluer
-     * @param row la ligne
-     * @param col la colonne
+     * @param row   la ligne
+     * @param col   la colonne
      * @return Integer de l'objet dans le tableau
      */
     public static int valueToInt(DefaultTableModel model, int row, int col) {
@@ -184,9 +184,10 @@ public class Utils {
 
     /**
      * Retourne la valeur d'une table en String
+     *
      * @param model le DefaultTableModel à évaluer
-     * @param row la ligne
-     * @param col la colonne
+     * @param row   la ligne
+     * @param col   la colonne
      * @return String de l'objet dans le tableau
      */
     public static String valueToString(DefaultTableModel model, int row, int col) {

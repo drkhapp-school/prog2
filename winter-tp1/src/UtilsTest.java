@@ -1,7 +1,7 @@
 /**
  * Objectif: Teste unitaires pour tester les méthodes utilitaires
  *
- * @author: Jean-Philippe Miguel-Gagnon
+ * @author: Jean-Philippe Miguel-Gagnon - 1927230
  * Session H2021
  */
 
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Util Tests")
 class UtilsTest {
 
-    int[][] tab2d = {
+    int[][] tab2d = { // Tableau 2D pour évaluer
             {1234501, 51, 61, 71, 81},
             {1234502, 52, 62, 72, 82},
             {1234503, 53, 63, 73, 83},
@@ -37,19 +37,27 @@ class UtilsTest {
             {1234522, 52, 62, 72, 82}
     };
 
+    /**
+     * Test de la méthode moyenneEval()
+     */
     @Test
     public void moyenneEval() {
-        int col = 1;
-        double expectedResult = 53.0454545454545455;
-        double result = Utils.moyenneEval(tab2d, col);
+        int col = 1; // colonne à évaluer
+        double expectedResult = 53.0454545454545455; // moyenne attendu
+        double result = Utils.moyenneEval(tab2d, col); // résultat
+
         assertEquals(expectedResult, result, "Average of Column");
     }
 
+    /**
+     * Test de la méthode minEval()
+     */
     @Test
     public void minEval() {
-        int col = 2;
-        int expectedResult = 22;
-        int result = Utils.minEval(tab2d, col);
+        int col = 2; // colonne à évaluer
+        int expectedResult = 22; // minimum attendu
+        int result = Utils.minEval(tab2d, col); // résultat
+
         assertEquals(expectedResult, result, "Minimum of column");
 
         col = 3;
@@ -58,11 +66,14 @@ class UtilsTest {
         assertEquals(expectedResult, result, "Multiple minimums");
     }
 
+    /**
+     * Test de la méthode maxEval()
+     */
     @Test
     public void maxEval() {
-        int col = 1;
-        int expectedResult = 99;
-        int result = Utils.maxEval(tab2d, col);
+        int col = 1; // colonne à évaluer
+        int expectedResult = 99; // maximum attendu
+        int result = Utils.maxEval(tab2d, col); // résultat
         assertEquals(expectedResult, result, "Maximum of column");
 
         col = 3;
@@ -72,10 +83,13 @@ class UtilsTest {
 
     }
 
+    /**
+     * Test de la méthode isPresentDa()
+     */
     @Test
     void isPresentDA() {
-        int search = 1234501;
-        boolean result = Utils.isPresentDA(tab2d, search);
+        int search = 1234522; // da à trouver
+        boolean result = Utils.isPresentDA(tab2d, search); // résultat
         assertFalse(result, "Number found");
 
         search = 1234523;
