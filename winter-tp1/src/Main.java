@@ -165,9 +165,8 @@ public class Main extends JFrame {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
+                if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN)
                     tabNotesSelectionChange();
-                }
             }
         });
         loadData();
@@ -253,9 +252,11 @@ public class Main extends JFrame {
         };
 
         if (notInteger(arr))
-            sendErrorMessage(NUMBER_INVALID);
+            // Entrée invalide
+            sendErrorMessage(NUMBER_INVALID, 0);
         else if (!Utils.isPresentDA(tab, Integer.parseInt(arr[0])))
-            sendErrorMessage(DA_EXIST);
+            // DA existant dans une autre entrée
+            sendErrorMessage(DA_EXIST, Integer.parseInt(arr[0]));
         else {
             mdlNotes.addRow(arr);
             updateStats();
@@ -266,8 +267,9 @@ public class Main extends JFrame {
      * Modification d'une entrée dans la base de données
      */
     private void btnModifierAction() {
+        int[][] tab = Utils.convertT2d(mdlNotes);
         int row = tabNotes.getSelectedRow(); // ligne sélectionnée
-        String[] data = new String[]{ // tableau de l'information
+        String[] arr = new String[]{ // tableau de l'information
                 txfDA.getText(),
                 txfEx1.getText(),
                 txfEx2.getText(),
@@ -276,12 +278,17 @@ public class Main extends JFrame {
         };
 
         if (row == -1)
-            sendErrorMessage(SELECTION_INVALID);
-        else if (notInteger(data))
-            sendErrorMessage(NUMBER_INVALID);
+            // Aucune sélection
+            sendErrorMessage(SELECTION_INVALID, 0);
+        else if (notInteger(arr))
+            // Entrée invalide
+            sendErrorMessage(NUMBER_INVALID, 0);
+        else if (!Utils.isPresentDA(tab,  Integer.parseInt(arr[0])) && !Utils.valueToString(mdlNotes, row, 0).equals(arr[0]))
+            // DA existant dans une autre entrée
+            sendErrorMessage(DA_EXIST, Integer.parseInt(arr[0]));
         else {
-            for (int i = 0; i < data.length; i++)
-                mdlNotes.setValueAt(data[i], row, i);
+            for (int i = 0; i < arr.length; i++)
+                mdlNotes.setValueAt(arr[i], row, i);
 
             updateStats();
         }
@@ -294,7 +301,8 @@ public class Main extends JFrame {
         int row = tabNotes.getSelectedRow(); // ligne sélectionnée
 
         if (row == -1)
-            sendErrorMessage(SELECTION_INVALID);
+            // Aucune sélection
+            sendErrorMessage(SELECTION_INVALID, 0);
         else {
             mdlNotes.removeRow(row);
             txfDA.setText(null);
@@ -302,7 +310,6 @@ public class Main extends JFrame {
             txfEx2.setText(null);
             txfTp1.setText(null);
             txfTp2.setText(null);
-
             updateStats();
         }
     }
@@ -331,12 +338,13 @@ public class Main extends JFrame {
      * Génère un message d'erreur selon le contexte
      *
      * @param type type d'erreur, soit NUMBER_INVALID pour un nombre invalid, DA_EXIST pour un DA existant, ou SELECTION_INVALID pour une sélection null
+     * @param da le da, utilisé pour le type DA_EXIST
      */
-    private void sendErrorMessage(int type) {
+    private void sendErrorMessage(int type, int da) {
         switch (type) {
             case (NUMBER_INVALID) -> JOptionPane.showMessageDialog(frame, "Entrée invalide.\nAssurer que les notes sont entre 0 et 100, et que le DA est un nombre positif en bas de 2 147 483 647.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
-            case (DA_EXIST) -> JOptionPane.showMessageDialog(frame, "Le DA existe déjà.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
-            case (SELECTION_INVALID) -> JOptionPane.showMessageDialog(frame, "Aucune ligne sélectionnée.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
+            case (DA_EXIST) -> JOptionPane.showMessageDialog(frame, "Le DA " + da + " existe déjà.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
+            case (SELECTION_INVALID) -> JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une ligne.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -348,6 +356,7 @@ public class Main extends JFrame {
         int[][] tab; // Tableau des notes
         int moyenne; // Moyenne pour total
 
+        // Calcul du total
         for (int i = 0; i < mdlNotes.getRowCount(); i++) {
             moyenne = 0;
             for (int j = 1; j <= 4; j++)
@@ -357,10 +366,12 @@ public class Main extends JFrame {
             mdlNotes.setValueAt(moyenne, i, 5);
         }
 
+        // Calcul des statistiques
+        tab = Utils.convertT2d(mdlNotes);
+
+        // Si le tableau est vide, on envoie un nouveau tableau avec que des 0 pour les statistiques
         if (mdlNotes.getRowCount() == 0)
             tab = new int[][]{{0, 0, 0, 0, 0, 0}};
-        else
-            tab = Utils.convertT2d(mdlNotes);
 
         for (int i = 1; i < tab[0].length; i++) {
             mdlStats.setValueAt(df.format(Utils.moyenneEval(tab, i)), 0, i);
@@ -421,7 +432,10 @@ public class Main extends JFrame {
 
         while (i < arr.length && !invalid) {
             try {
+                // Vérifier si c'est un nombre
                 int test = Integer.parseInt(arr[i]);
+
+                // Vérifier si le DA est positif, et si les notes sont entre 0 et 100 inclusif
                 if (test <= 0 || (i > 0 && test >= 100))
                     invalid = true;
 
