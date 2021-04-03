@@ -143,7 +143,9 @@ public class Main extends JFrame {
         // Génération du tableau de notes
         mdlNotes = new DefaultTableModel(colNotes, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
         tabNotes = new JTable(mdlNotes);
@@ -154,10 +156,12 @@ public class Main extends JFrame {
         });
         tabNotes.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) {
+            }
 
             @Override
-            public void keyPressed(KeyEvent e) {}
+            public void keyPressed(KeyEvent e) {
+            }
 
             @Override
             public void keyReleased(KeyEvent e) {
@@ -173,7 +177,9 @@ public class Main extends JFrame {
         // Génération du tableau de statistiques
         mdlStats = new DefaultTableModel(colStats, 4) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
         tabStats = new JTable(mdlStats);
@@ -192,7 +198,8 @@ public class Main extends JFrame {
         try {
             tabNotes.setRowSelectionInterval(0, 0);
             tabNotesSelectionChange();
-        } catch (IllegalArgumentException ignored) {}
+        } catch (IllegalArgumentException ignored) {
+        }
 
         panWest.add(scroll);
         panWest.add(scrollStats);
@@ -257,6 +264,7 @@ public class Main extends JFrame {
                 sendErrorMessage("Le DA " + da + " existe déjà.");
             else {
                 mdlNotes.addRow(arr);
+                tabNotes.setRowSelectionInterval(mdlNotes.getRowCount() - 1, mdlNotes.getRowCount() - 1);
                 updateStats();
             }
         }
@@ -340,6 +348,7 @@ public class Main extends JFrame {
 
     /**
      * Génère un message d'erreur selon le contexte
+     *
      * @param message le message d'erreur à montrer
      */
     private void sendErrorMessage(String message) {
