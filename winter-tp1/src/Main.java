@@ -14,10 +14,6 @@ import java.io.*;
 import java.text.DecimalFormat;
 
 public class Main extends JFrame {
-    private static final int NUMBER_INVALID = 0; // Message d'erreur: Nombre invalid
-    private static final int DA_EXIST = 1; // Message d'erreur: DA déjà dans le texte
-    private static final int SELECTION_INVALID = 2; // Message d'erreur: Aucune selection
-
     JFrame frame;
 
     JTable tabNotes;
@@ -45,9 +41,6 @@ public class Main extends JFrame {
     JPanel panEast;
     JPanel panWest;
     JPanel panSouth;
-
-    String[] colNotes = {"DA", "Examen 1", "Examen 2", "TP 1", "TP 2", "Total %"};
-    String[] colStats = {"", "", "", "", "", ""};
 
     Dimension dimMin = new Dimension(1280, 720);
     Dimension dimLab = new Dimension(150, 30);
@@ -140,6 +133,9 @@ public class Main extends JFrame {
      * Constructeur du panneau de gauche
      */
     public void createPanWest() throws IOException {
+        String[] colNotes = {"DA", "Examen 1", "Examen 2", "TP 1", "TP 2", "Total %"}; // Noms des colonnes du tabNotes
+        String[] colStats = {"", "", "", "", "", ""}; // Noms des colonnes du tabStats
+
         panWest = new JPanel();
         panWest.setLayout(new FlowLayout(FlowLayout.CENTER));
         panWest.setPreferredSize(dimWest);
@@ -251,15 +247,18 @@ public class Main extends JFrame {
                 txfTp2.getText()
         };
 
-        if (notInteger(arr))
+        if (invalidEntry(arr))
             // Entrée invalide
-            sendErrorMessage(NUMBER_INVALID, 0);
-        else if (!Utils.isPresentDA(tab, Integer.parseInt(arr[0])))
-            // DA existant dans une autre entrée
-            sendErrorMessage(DA_EXIST, Integer.parseInt(arr[0]));
+            sendErrorMessage("Entrée invalide.\nAssurer que les notes sont entre 0 et 100, et que le DA est un nombre positif en bas de 2 147 483 648.");
         else {
-            mdlNotes.addRow(arr);
-            updateStats();
+            int da = Integer.parseInt(arr[0]);
+            if (!Utils.isPresentDA(tab, da))
+                // DA existant dans une autre entrée
+                sendErrorMessage("Le DA " + da + " existe déjà.");
+            else {
+                mdlNotes.addRow(arr);
+                updateStats();
+            }
         }
     }
 
@@ -276,21 +275,26 @@ public class Main extends JFrame {
                 txfTp1.getText(),
                 txfTp2.getText()
         };
+        int da;
 
         if (row == -1)
             // Aucune sélection
-            sendErrorMessage(SELECTION_INVALID, 0);
-        else if (notInteger(arr))
+            sendErrorMessage("Veuillez sélectionner une ligne.");
+        else if (invalidEntry(arr))
             // Entrée invalide
-            sendErrorMessage(NUMBER_INVALID, 0);
-        else if (!Utils.isPresentDA(tab,  Integer.parseInt(arr[0])) && !Utils.valueToString(mdlNotes, row, 0).equals(arr[0]))
-            // DA existant dans une autre entrée
-            sendErrorMessage(DA_EXIST, Integer.parseInt(arr[0]));
+            sendErrorMessage("Entrée invalide.\nAssurer que les notes sont entre 0 et 100, et que le DA est un nombre positif en bas de 2 147 483 648.");
         else {
-            for (int i = 0; i < arr.length; i++)
-                mdlNotes.setValueAt(arr[i], row, i);
+            da = Integer.parseInt(arr[0]);
 
-            updateStats();
+            if (!Utils.isPresentDA(tab, da) && tab[row][0] != da)
+                // DA existant dans une autre entrée
+                sendErrorMessage("Le DA " + da + " existe déjà.");
+            else {
+                for (int i = 0; i < arr.length; i++)
+                    mdlNotes.setValueAt(arr[i], row, i);
+
+                updateStats();
+            }
         }
     }
 
@@ -302,7 +306,7 @@ public class Main extends JFrame {
 
         if (row == -1)
             // Aucune sélection
-            sendErrorMessage(SELECTION_INVALID, 0);
+            sendErrorMessage("Veuillez sélectionner une ligne.");
         else {
             mdlNotes.removeRow(row);
             txfDA.setText(null);
@@ -336,16 +340,10 @@ public class Main extends JFrame {
 
     /**
      * Génère un message d'erreur selon le contexte
-     *
-     * @param type type d'erreur, soit NUMBER_INVALID pour un nombre invalid, DA_EXIST pour un DA existant, ou SELECTION_INVALID pour une sélection null
-     * @param da le da, utilisé pour le type DA_EXIST
+     * @param message le message d'erreur à montrer
      */
-    private void sendErrorMessage(int type, int da) {
-        switch (type) {
-            case (NUMBER_INVALID) -> JOptionPane.showMessageDialog(frame, "Entrée invalide.\nAssurer que les notes sont entre 0 et 100, et que le DA est un nombre positif en bas de 2 147 483 647.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
-            case (DA_EXIST) -> JOptionPane.showMessageDialog(frame, "Le DA " + da + " existe déjà.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
-            case (SELECTION_INVALID) -> JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une ligne.", "Message d'erreur", JOptionPane.ERROR_MESSAGE);
-        }
+    private void sendErrorMessage(String message) {
+        JOptionPane.showMessageDialog(frame, message, "Message d'erreur", JOptionPane.ERROR_MESSAGE);
     }
 
     /**
@@ -419,15 +417,14 @@ public class Main extends JFrame {
     }
 
     /**
-     * Vérifie si les notes ne sont pas des nombres possibles
-     * Première colonne doit être positif
-     * Deuxième jusqu'à la dernière colonne doit être entre 0 et 100
+     * Vérifie si il y a une entrée erronée.
+     * Les nombres doivent être positives, et, à partir de la 2eme entrée, doivent être entre 0 et 100
      *
-     * @param arr Tableau de string à évaluer
-     * @return true si un string n'est pas un nombre, sinon false
+     * @param arr Tableau de String à évaluer
+     * @return true si un String est erronée, sinon false
      */
-    private boolean notInteger(String[] arr) {
-        boolean invalid = false; // si c'est pas un nombre
+    private boolean invalidEntry(String[] arr) {
+        boolean invalid = false; // si l'entrée est invalide
         int i = 0; // int pour la boucle
 
         while (i < arr.length && !invalid) {
@@ -435,8 +432,12 @@ public class Main extends JFrame {
                 // Vérifier si c'est un nombre
                 int test = Integer.parseInt(arr[i]);
 
-                // Vérifier si le DA est positif, et si les notes sont entre 0 et 100 inclusif
-                if (test <= 0 || (i > 0 && test >= 100))
+                // Vérifier si le nombre n'est pas positif
+                if (test <= 0)
+                    invalid = true;
+
+                // Vérifier si le nombre n'est pas entre 0 et 100 (seulement si c'est pas la 1e entrée)
+                if (i != 0 && test >= 100)
                     invalid = true;
 
                 i++;
