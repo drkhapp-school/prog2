@@ -433,11 +433,11 @@ public class Main extends JFrame {
                 int test = Integer.parseInt(arr[i]);
 
                 // Vérifier si le nombre n'est pas positif
-                if (test <= 0)
+                if (test < 0)
                     invalid = true;
 
                 // Vérifier si le nombre n'est pas entre 0 et 100 (seulement si c'est pas la 1e entrée)
-                if (i != 0 && test >= 100)
+                if (i != 0 && test > 100)
                     invalid = true;
 
                 i++;
