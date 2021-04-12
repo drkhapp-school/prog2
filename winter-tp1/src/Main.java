@@ -254,13 +254,14 @@ public class Main extends JFrame {
                 txfTp2.getText()
         };
 
+        // Entrée invalide
         if (invalidEntry(arr))
-            // Entrée invalide
             sendErrorMessage("Entrée invalide.\nAssurer que les notes sont entre 0 et 100, et que le DA est un nombre positif en bas de 2 147 483 648.");
         else {
             int da = Integer.parseInt(arr[0]);
+
+            // DA existant dans une autre entrée
             if (!Utils.isPresentDA(tab, da))
-                // DA existant dans une autre entrée
                 sendErrorMessage("Le DA " + da + " existe déjà.");
             else {
                 mdlNotes.addRow(arr);
@@ -285,17 +286,17 @@ public class Main extends JFrame {
         };
         int da;
 
+        // Aucune sélection
         if (row == -1)
-            // Aucune sélection
             sendErrorMessage("Veuillez sélectionner une ligne.");
+        // Entrée invalide
         else if (invalidEntry(arr))
-            // Entrée invalide
             sendErrorMessage("Entrée invalide.\nAssurer que les notes sont entre 0 et 100, et que le DA est un nombre positif en bas de 2 147 483 648.");
         else {
             da = Integer.parseInt(arr[0]);
 
+            // DA existant dans une autre entrée
             if (!Utils.isPresentDA(tab, da) && tab[row][0] != da)
-                // DA existant dans une autre entrée
                 sendErrorMessage("Le DA " + da + " existe déjà.");
             else {
                 for (int i = 0; i < arr.length; i++)
@@ -312,8 +313,8 @@ public class Main extends JFrame {
     private void btnSupprimerAction() {
         int row = tabNotes.getSelectedRow(); // ligne sélectionnée
 
+        // Aucune sélection
         if (row == -1)
-            // Aucune sélection
             sendErrorMessage("Veuillez sélectionner une ligne.");
         else {
             mdlNotes.removeRow(row);
