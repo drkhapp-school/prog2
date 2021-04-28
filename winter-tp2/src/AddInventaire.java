@@ -3,7 +3,10 @@ import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.Objects;
 
 public class AddInventaire extends JDialog {
     JDialog dialog;
@@ -12,7 +15,7 @@ public class AddInventaire extends JDialog {
     JLabel labSerie;
     JTextField txfSerie;
     JLabel labCat;
-    JComboBox CmbCat;
+    JComboBox<String> CmbCat;
     JLabel labPrix;
     JTextField txfPrix;
     JLabel labDate;
@@ -61,7 +64,7 @@ public class AddInventaire extends JDialog {
         labCat = new JLabel("Catégorie:");
         labCat.setPreferredSize(dimLab);
 
-        CmbCat = new JComboBox(categories);
+        CmbCat = new JComboBox<>(categories);
         CmbCat.setSelectedIndex(0);
         CmbCat.setPreferredSize(dimTxf);
 
@@ -115,8 +118,55 @@ public class AddInventaire extends JDialog {
     }
 
     private void btnAjouterAction() {
+        String[] arr = new String[]{
+                txfNom.getText(),
+                txfSerie.getText(),
+                Objects.requireNonNull(CmbCat.getSelectedItem()).toString(),
+                txfPrix.getText(),
+                txaDesc.getText()
+        };
+
+        String nom;
+        double prix;
+        LocalDate date;
+        String categorie;
+        String description;
+        String nbSerie;
+
+        // Vérification des entrées
+        if (Utils.isEmpty(arr[0])) {
+            sendErrorMessage("Nom invalid!");
+            return;
+        }
+
+        if (Utils.isNotDouble(arr[3])) {
+            sendErrorMessage("Prix invalid!");
+            return;
+        }
+
+        nom = arr[0];
+        nbSerie = arr[1];
+        categorie = arr[2];
+        prix = Double.parseDouble(arr[3]);
+        description = arr[4];
+        date = dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        Main.ListeInventaire.add(new Inventaire(nom, description, categorie, date, nbSerie, prix));
+        Main.success = true;
+        dialog.dispose();
     }
 
+    /**
+     * Génère un message d'erreur selon le contexte
+     *
+     * @param message le message d'erreur à montrer
+     */
+    private void sendErrorMessage(String message) {
+        JOptionPane.showMessageDialog(dialog, message, "Message d'erreur", JOptionPane.ERROR_MESSAGE);
+    }
+
+
     private void btnAnnulerAction() {
+        dialog.dispose();
     }
 }

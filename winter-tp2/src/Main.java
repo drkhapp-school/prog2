@@ -5,8 +5,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 public class Main extends JFrame{
+    public static final ArrayList<Inventaire> ListeInventaire = new ArrayList<>();
+    public static boolean success = false;
+
+    DefaultTableModel mdlInventaire;
+    DefaultTableModel mdlEntretien;
+
     JFrame frame;
     JMenuBar menuBar;
     JMenu menuTP2, menuFichier;
@@ -14,9 +21,7 @@ public class Main extends JFrame{
     JTextField txfFilter;
     JButton btnFilter;
     JTable tabInventaire;
-    DefaultTableModel mdlInventaire;
     JTable tabEntretien;
-    DefaultTableModel mdlEntretien;
     JButton btnAddInv;
     JButton btnDelInv;
     JButton btnAddEnt;
@@ -178,7 +183,7 @@ public class Main extends JFrame{
         panWest.setPreferredSize(dimWest);
 
         // Tableau d'inventaire
-        mdlInventaire = new DefaultTableModel(colInventaire, 1) {
+        mdlInventaire = new DefaultTableModel(colInventaire, 0) {
             @Override
             public boolean isCellEditable(int row, int column ) {
                 return false;
@@ -212,10 +217,8 @@ public class Main extends JFrame{
         tabInventaire.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent mouseEvent) {
                 JTable table =(JTable) mouseEvent.getSource();
-                Point point = mouseEvent.getPoint();
-                int row = table.rowAtPoint(point);
                 if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
-                    new ModifInventaire();
+                    modifyInventaire();
                 }
             }
         });
@@ -295,9 +298,24 @@ public class Main extends JFrame{
 
     private void btnAddInvAction() {
         new AddInventaire();
+        if (success) {
+            updateInventaire();
+            tabInventaire.setRowSelectionInterval(mdlInventaire.getRowCount() - 1, mdlInventaire.getRowCount() - 1);
+            success = false;
+        }
+    }
+
+    private void modifyInventaire() {
+        new ModifInventaire(tabInventaire.getSelectedRow());
+        updateInventaire();
     }
 
     private void btnDelInvAction() {
+        int row = tabInventaire.getSelectedRow();
+        if (row == -1) return;
+
+        ListeInventaire.remove(row);
+        updateInventaire();
     }
 
     private void btnAddEntAction() {
@@ -313,5 +331,12 @@ public class Main extends JFrame{
     // --- Méthodes --- //
     public static void main(String[] args) {
         new Main();
+    }
+
+    private void updateInventaire() {
+        mdlInventaire.setRowCount(0);
+        for (Inventaire inventaire : ListeInventaire) {
+            mdlInventaire.addRow(inventaire.toObject());
+        }
     }
 }

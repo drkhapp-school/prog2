@@ -5,15 +5,19 @@ public class Inventaire {
     private String nom;
     private String description;
     private String categorie;
+    private String nbSerie;
     private LocalDate date;
-    private int nbSerie;
     private double prix;
-    private LinkedHashMap<LocalDate,String> entretiens;
+    private final LinkedHashMap<LocalDate, String> entretiens;
 
-    public Inventaire(String nom, LocalDate date, double prix) {
+    public Inventaire(String nom, String description, String categorie, LocalDate date, String nbSerie, double prix) {
         this.nom = nom;
+        this.description = description;
+        this.categorie = categorie;
         this.date = date;
+        this.nbSerie = nbSerie;
         this.prix = prix;
+        this.entretiens = new LinkedHashMap<>();
     }
 
     public String getNom() {
@@ -32,7 +36,7 @@ public class Inventaire {
         return date;
     }
 
-    public int getNbSerie() {
+    public String getNbSerie() {
         return nbSerie;
     }
 
@@ -40,28 +44,10 @@ public class Inventaire {
         return prix;
     }
 
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setCategorie(String categorie) {
-        this.categorie = categorie;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public void setNbSerie(int nbSerie) {
-        this.nbSerie = nbSerie;
-    }
-
-    public void setPrix(double prix) {
-        this.prix = prix;
+    public Object[] toObject() {
+        return new Object[]{
+                nom, categorie, prix, date, description
+        };
     }
 
     public LinkedHashMap<LocalDate, String> getEntretiens() {
