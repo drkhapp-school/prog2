@@ -1,11 +1,20 @@
 import com.toedter.calendar.JDateChooser;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.util.Date;
 
-public class AjoutEntretien extends JDialog {
+public class AddInventaire extends JDialog {
     JDialog dialog;
+    JLabel labNom;
+    JTextField txfNom;
+    JLabel labSerie;
+    JTextField txfSerie;
+    JLabel labCat;
+    JComboBox CmbCat;
+    JLabel labPrix;
+    JTextField txfPrix;
     JLabel labDate;
     JLabel labDesc;
     JTextArea txaDesc;
@@ -23,9 +32,9 @@ public class AjoutEntretien extends JDialog {
     Dimension dimTxa = new Dimension(200, 150);
     Dimension dimBas = new Dimension(400, 50);
 
-    public AjoutEntretien() {
-        dialog = new JDialog((JDialog) null, "Ajout Entretien", true);
-        dialog.setSize(400, 275);
+    public AddInventaire() {
+        dialog = new JDialog((JDialog) null, "Ajout Inventaire", true);
+        dialog.setSize(400, 425);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(null);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -36,7 +45,33 @@ public class AjoutEntretien extends JDialog {
         panBas.setLayout(new FlowLayout(FlowLayout.CENTER));
         panBas.setPreferredSize(dimBas);
 
-        labDate = new JLabel("*Date:");
+
+        labNom = new JLabel("*Nom:");
+        labNom.setPreferredSize(dimLab);
+
+        txfNom = new JTextField();
+        txfNom.setPreferredSize(dimTxf);
+
+        labSerie = new JLabel("No série:");
+        labSerie.setPreferredSize(dimLab);
+
+        txfSerie = new JTextField();
+        txfSerie.setPreferredSize(dimTxf);
+
+        labCat = new JLabel("Catégorie:");
+        labCat.setPreferredSize(dimLab);
+
+        CmbCat = new JComboBox(categories);
+        CmbCat.setSelectedIndex(0);
+        CmbCat.setPreferredSize(dimTxf);
+
+        labPrix = new JLabel("*Prix:");
+        labPrix.setPreferredSize(dimLab);
+
+        txfPrix = new JTextField();
+        txfPrix.setPreferredSize(dimTxf);
+
+        labDate = new JLabel("*Date achat:");
         labDate.setPreferredSize(dimLab);
 
         dateChooser = new JDateChooser(new Date());
@@ -60,6 +95,14 @@ public class AjoutEntretien extends JDialog {
         panBas.add(btnAjouter);
         panBas.add(btnAnnuler);
 
+        dialog.add(labNom);
+        dialog.add(txfNom);
+        dialog.add(labSerie);
+        dialog.add(txfSerie);
+        dialog.add(labCat);
+        dialog.add(CmbCat);
+        dialog.add(labPrix);
+        dialog.add(txfPrix);
         dialog.add(labDate);
         dialog.add(dateChooser);
         dialog.add(labDesc);
@@ -71,15 +114,9 @@ public class AjoutEntretien extends JDialog {
 
     }
 
-    private void btnAnnulerAction() {
-
-    }
-
     private void btnAjouterAction() {
-
     }
 
-    public static void AjoutEntretien(String[] args) {
-        new AjoutEntretien();
+    private void btnAnnulerAction() {
     }
 }

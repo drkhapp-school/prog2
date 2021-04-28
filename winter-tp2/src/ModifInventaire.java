@@ -4,7 +4,7 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.util.Date;
 
-public class AjoutInventaire extends JDialog {
+public class ModifInventaire extends JDialog {
     JDialog dialog;
     JLabel labNom;
     JTextField txfNom;
@@ -31,8 +31,8 @@ public class AjoutInventaire extends JDialog {
     Dimension dimTxa = new Dimension(200, 150);
     Dimension dimBas = new Dimension(400, 50);
 
-    public AjoutInventaire() {
-        dialog = new JDialog((JDialog) null, "Ajout Inventaire", true);
+    public ModifInventaire() {
+        dialog = new JDialog((JDialog) null, "Modification inventaire", true);
         dialog.setSize(400, 425);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(null);
@@ -83,7 +83,7 @@ public class AjoutInventaire extends JDialog {
         txaDesc.setPreferredSize(dimTxa);
         txaDesc.setBorder(Bordure);
 
-        btnAjouter = new JButton("Ajouter");
+        btnAjouter = new JButton("Modifier");
         btnAjouter.setPreferredSize(dimBtn);
         btnAjouter.addActionListener(e -> btnAjouterAction());
 
@@ -113,15 +113,9 @@ public class AjoutInventaire extends JDialog {
 
     }
 
-    private void btnAjouterAction() {
-
-    }
-
     private void btnAnnulerAction() {
-
     }
 
-    public static void AjoutInventaire(String[] args) {
-        new AjoutInventaire();
+    private void btnAjouterAction() {
     }
 }

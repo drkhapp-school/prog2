@@ -10,15 +10,6 @@ public class Inventaire {
     private double prix;
     private LinkedHashMap<LocalDate,String> entretiens;
 
-    public Inventaire(String nom, int nbSerie, String categorie, double prix, LocalDate date, String description) {
-        this.nom = nom;
-        this.nbSerie = nbSerie;
-        this.categorie = categorie;
-        this.prix = prix;
-        this.date = date;
-        this.description = description;
-    }
-
     public Inventaire(String nom, LocalDate date, double prix) {
         this.nom = nom;
         this.date = date;

@@ -1,6 +1,4 @@
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -12,102 +10,174 @@ public class Main extends JFrame{
     JFrame frame;
     JMenuBar menuBar;
     JMenu menuTP2, menuFichier;
-    JMenuItem miAPropos, miQuitter, miNouveau, miOuvrir, miFermer, miEnregistrer, miEnregistrerSous, miExporter;
-    JTextField txfFiltre;
-    JButton btnFiltrer;
+    JMenuItem miAbout, miQuit, miNew, miOpen, miClose, miSave, miSaveAs, miExport;
+    JTextField txfFilter;
+    JButton btnFilter;
     JTable tabInventaire;
     DefaultTableModel mdlInventaire;
     JTable tabEntretien;
     DefaultTableModel mdlEntretien;
-    JButton btnPlusInv;
-    JButton btnMoinsInv;
-    JButton btnPlusEnt;
-    JButton btnMoinsEnt;
-    JButton btnQuitter;
+    JButton btnAddInv;
+    JButton btnDelInv;
+    JButton btnAddEnt;
+    JButton btnDelEnt;
+    JButton btnQuit;
 
-    JPanel panHaut;
-    JPanel panGauche;
-    JPanel panDroite;
-    JPanel panBas;
+    JPanel panNorth;
+    JPanel panWest;
+    JPanel panEast;
+    JPanel panSouth;
 
     String[] colInventaire = {"Nom", "Catégorie", "Prix", "Date achat", "Description"};
     String[] colEntretien = {"Date", "Description"};
 
     Dimension dimTxf = new Dimension(150, 30);
     Dimension dimBtn = new Dimension(100, 25);
-    Dimension dimHaut = new Dimension(1300, 40);
-    Dimension dimDroite = new Dimension(500, 700);
-    Dimension dimGauche = new Dimension(800, 700);
-    Dimension dimBas = new Dimension(1300, 50);
+    Dimension dimNorth = new Dimension(1300, 40);
+    Dimension dimEast = new Dimension(500, 700);
+    Dimension dimWest = new Dimension(800, 700);
+    Dimension dimSouth = new Dimension(1300, 50);
 
-//-------------------------------------------- Constructeur des composants des JPanels --------------------------------------------//
+    // --- Constructeur --- //
 
     public Main() {
-        frame = new JFrame("Marc-Antoine Gagnon 2026821");
+        frame = new JFrame("Jean-Philippe Miguel-Gagnon - 1927230");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(1325, 800);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout());
 
+        createMenuBar();
+        createPanNorth();
+        createPanWest();
+        createPanEast();
+        createPanSouth();
+        frame.setVisible(true);
+    }
 
-        panHaut = new JPanel();
-        panHaut.setLayout(new FlowLayout(FlowLayout.LEFT));
-        panHaut.setPreferredSize(dimHaut);
-        panDroite = new JPanel();
-        panDroite.setLayout(new FlowLayout(FlowLayout.LEFT));
-        panDroite.setPreferredSize(dimDroite);
-        panGauche = new JPanel();
-        panGauche.setLayout(new FlowLayout(FlowLayout.LEFT));
-        panGauche.setPreferredSize(dimGauche);
-        panBas = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        panBas.setPreferredSize(dimBas);
-
+    private void createMenuBar(){
         menuBar = new JMenuBar();
 
+        // Menu "TP2"
         menuTP2 = new JMenu("TP2");
-        miAPropos = new JMenuItem("À propos");
-        miAPropos.addActionListener(e -> miAProposAction());
-        miQuitter = new JMenuItem("Quitter");
-        miQuitter.addActionListener(e -> miQuitterAction());
+        miAbout = new JMenuItem("À propos");
+        miAbout.addActionListener(e -> miAboutAction());
+        miQuit = new JMenuItem("Quitter");
+        miQuit.addActionListener(e -> miQuitAction());
 
         menuBar.add(menuTP2);
-        menuTP2.add(miAPropos);
+        menuTP2.add(miAbout);
         menuTP2.addSeparator();
-        menuTP2.add(miQuitter);
+        menuTP2.add(miQuit);
 
+        // Menu "Fichier"
         menuFichier = new JMenu("Fichier");
-        miNouveau = new JMenuItem("Nouveau...");
-        miNouveau.addActionListener(e -> miNouveauAction());
-        miOuvrir = new JMenuItem("Ouvrir...");
-        miOuvrir.addActionListener(e -> miOuvrirAction());
-        miFermer = new JMenuItem("Fermer");
-        miFermer.addActionListener(e -> miFermerAction());
-        miEnregistrer = new JMenuItem("Enregistrer");
-        miEnregistrer.addActionListener(e -> miEnregistrerAction());
-        miEnregistrerSous = new JMenuItem("Enregistrer sous...");
-        miEnregistrerSous.addActionListener(e -> miEnregistrersousAction());
-        miExporter = new JMenuItem("Exporter...");
-        miExporter.addActionListener(e -> miExporterAction());
+        miNew = new JMenuItem("Nouveau...");
+        miNew.addActionListener(e -> miNewAction());
+        miOpen = new JMenuItem("Ouvrir...");
+        miOpen.addActionListener(e -> miOpenAction());
+        miClose = new JMenuItem("Fermer");
+        miClose.addActionListener(e -> miCloseAction());
+        miSave = new JMenuItem("Enregistrer");
+        miSave.addActionListener(e -> miSaveAction());
+        miSaveAs = new JMenuItem("Enregistrer sous...");
+        miSaveAs.addActionListener(e -> miSaveAsAction());
+        miExport = new JMenuItem("Exporter...");
+        miExport.addActionListener(e -> miExportAction());
 
         menuBar.add(menuFichier);
-        menuFichier.add(miNouveau);
-        menuFichier.add(miOuvrir);
-        menuFichier.add(miFermer);
+        menuFichier.add(miNew);
+        menuFichier.add(miOpen);
+        menuFichier.add(miClose);
         menuFichier.addSeparator();
-        menuFichier.add(miEnregistrer);
-        menuFichier.add(miEnregistrerSous);
+        menuFichier.add(miSave);
+        menuFichier.add(miSaveAs);
         menuFichier.addSeparator();
-        menuFichier.add(miExporter);
+        menuFichier.add(miExport);
 
-        txfFiltre = new JTextField();
-        txfFiltre.setPreferredSize(dimTxf);
+        frame.setJMenuBar(menuBar);
+    }
 
-        btnFiltrer = new JButton("Filtrer");
-        btnFiltrer.setPreferredSize(dimBtn);
-        btnFiltrer.addActionListener(e -> btnFiltrerAction());
+    private void createPanNorth(){
+        panNorth = new JPanel();
+        panNorth.setLayout(new FlowLayout(FlowLayout.LEFT));
+        panNorth.setPreferredSize(dimNorth);
 
+        txfFilter = new JTextField();
+        txfFilter.setPreferredSize(dimTxf);
 
+        btnFilter = new JButton("Filtrer");
+        btnFilter.setPreferredSize(dimBtn);
+        btnFilter.addActionListener(e -> btnFilterAction());
+
+        panNorth.add(txfFilter);
+        panNorth.add(btnFilter);
+
+        frame.add(panNorth, BorderLayout.NORTH);
+    }
+
+    private void createPanEast(){
+        panEast = new JPanel();
+        panEast.setLayout(new FlowLayout(FlowLayout.LEFT));
+        panEast.setPreferredSize(dimEast);
+
+        // Tableau d'entretien
+        mdlEntretien = new DefaultTableModel(colEntretien, 1) {
+            @Override
+            public boolean isCellEditable(int row, int column ) {
+                return false;
+            }
+        };
+
+        tabEntretien = new JTable(mdlEntretien);
+        tabEntretien.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tabEntretien.getSelectionModel().addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) {
+                tabEntretienSelectionChange();
+            }
+        });
+
+        tabEntretien.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) { }
+
+            @Override
+            public void keyPressed(KeyEvent e) { }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
+                    tabEntretienSelectionChange();
+                }
+            }
+        });
+
+        JScrollPane scrollEnt = new JScrollPane(tabEntretien);
+        scrollEnt.setPreferredSize(new Dimension(490, 600));
+
+        // Boutons d'entretien
+        btnAddEnt = new JButton("+");
+        btnAddEnt.setPreferredSize(dimBtn);
+        btnAddEnt.addActionListener(e -> btnAddEntAction());
+
+        btnDelEnt = new JButton("-");
+        btnDelEnt.setPreferredSize(dimBtn);
+        btnDelEnt.addActionListener(e -> btnDelEntAction());
+
+        panEast.add(scrollEnt);
+        panEast.add(btnAddEnt);
+        panEast.add(btnDelEnt);
+
+        frame.add(panEast, BorderLayout.EAST);
+    }
+
+    private void createPanWest(){
+        panWest = new JPanel();
+        panWest.setLayout(new FlowLayout(FlowLayout.LEFT));
+        panWest.setPreferredSize(dimWest);
+
+        // Tableau d'inventaire
         mdlInventaire = new DefaultTableModel(colInventaire, 1) {
             @Override
             public boolean isCellEditable(int row, int column ) {
@@ -118,25 +188,18 @@ public class Main extends JFrame{
         tabInventaire = new JTable(mdlInventaire);
         tabInventaire.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        tabInventaire.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (e.getValueIsAdjusting()) {
-                    tabInventaireSelectionChange();
-                }
+        tabInventaire.getSelectionModel().addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) {
+                tabInventaireSelectionChange();
             }
         });
 
         tabInventaire.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
+            public void keyTyped(KeyEvent e) { }
 
             @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
+            public void keyPressed(KeyEvent e) { }
 
             @Override
             public void keyReleased(KeyEvent e) {
@@ -152,42 +215,7 @@ public class Main extends JFrame{
                 Point point = mouseEvent.getPoint();
                 int row = table.rowAtPoint(point);
                 if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
-                    ModificationInventaire modifInv = new ModificationInventaire();
-                }
-            }
-        });
-
-        mdlEntretien = new DefaultTableModel(colEntretien, 1) {
-            @Override
-            public boolean isCellEditable(int row, int column ) {
-                return false;
-            }
-        };
-
-        tabEntretien = new JTable(mdlEntretien);
-        tabEntretien.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        tabEntretien.getSelectionModel().addListSelectionListener(e -> {
-            if (e.getValueIsAdjusting()) {
-                tabEntretienSelectionChange();
-            }
-        });
-
-        tabEntretien.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    tabEntretienSelectionChange();
+                    new ModifInventaire();
                 }
             }
         });
@@ -195,73 +223,66 @@ public class Main extends JFrame{
         JScrollPane scrollInv = new JScrollPane(tabInventaire);
         scrollInv.setPreferredSize(new Dimension(790, 600));
 
-        JScrollPane scrollEnt = new JScrollPane(tabEntretien);
-        scrollEnt.setPreferredSize(new Dimension(490, 600));
+        // Bouton d'inventaire
+        btnAddInv = new JButton("+");
+        btnAddInv.setPreferredSize(dimBtn);
+        btnAddInv.addActionListener(e -> btnAddInvAction());
 
+        btnDelInv = new JButton("-");
+        btnDelInv.setPreferredSize(dimBtn);
+        btnDelInv.addActionListener(e -> btnDelInvAction());
 
-        btnPlusInv = new JButton("+");
-        btnPlusInv.setPreferredSize(dimBtn);
-        btnPlusInv.addActionListener(e -> btnPlusInvAction());
+        panWest.add(scrollInv);
+        panWest.add(btnAddInv);
+        panWest.add(btnDelInv);
 
-        btnMoinsInv = new JButton("-");
-        btnMoinsInv.setPreferredSize(dimBtn);
-        btnMoinsInv.addActionListener(e -> btnMoinsInvAction());
-
-        btnPlusEnt = new JButton("+");
-        btnPlusEnt.setPreferredSize(dimBtn);
-        btnPlusEnt.addActionListener(e -> btnPlusEntAction());
-
-        btnMoinsEnt = new JButton("-");
-        btnMoinsEnt.setPreferredSize(dimBtn);
-        btnMoinsEnt.addActionListener(e -> btnMoinsEntAction());
-
-        btnQuitter = new JButton("Quitter");
-        btnQuitter.setPreferredSize(dimBtn);
-        btnQuitter.addActionListener(e -> btnQuitterAction());
-
-
-        panHaut.add(txfFiltre);
-        panHaut.add(btnFiltrer);
-
-        panGauche.add(scrollInv);
-        panGauche.add(btnPlusInv);
-        panGauche.add(btnMoinsInv);
-
-        panDroite.add(scrollEnt);
-        panDroite.add(btnPlusEnt);
-        panDroite.add(btnMoinsEnt);
-
-        panBas.add(btnQuitter);
-
-        frame.setJMenuBar(menuBar);
-        frame.add(panHaut, BorderLayout.NORTH);
-        frame.add(panGauche, BorderLayout.WEST);
-        frame.add(panDroite, BorderLayout.EAST);
-        frame.add(panBas, BorderLayout.SOUTH);
-
-        frame.setVisible(true);
+        frame.add(panWest, BorderLayout.WEST);
     }
 
-    private void miOuvrirAction() {
+    private void createPanSouth(){
+        panSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        panSouth.setPreferredSize(dimSouth);
+
+        btnQuit = new JButton("Quitter");
+        btnQuit.setPreferredSize(dimBtn);
+        btnQuit.addActionListener(e -> btnQuitAction());
+
+        panSouth.add(btnQuit);
+
+        frame.add(panSouth, BorderLayout.SOUTH);
     }
 
-    private void miFermerAction() {
+    // --- Bar de Menu: TP2 --- //
+
+    private void miAboutAction() {
+        JOptionPane.showMessageDialog(frame,"Travail Pratique 2\nJean-Philippe Miguel-Gagnon - 1927230\nSession H2021\nDans le cadre du cours 420-C27", "À propos", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void miEnregistrersousAction() {
+    private void miQuitAction() {
     }
 
-    private void miExporterAction() {
+    private void miNewAction() {
     }
 
-    private void btnFiltrerAction() {
+    // --- Bar de Menu: Fichier --- //
+
+    private void miOpenAction() {
     }
 
-    private void miEnregistrerAction() {
+    private void miCloseAction() {
     }
 
-    private void miNouveauAction() {
+    private void miSaveAction() {
     }
+
+    private void miSaveAsAction() {
+    }
+
+    private void miExportAction() {
+    }
+
+
+    // --- Action Listeners --- //
 
     private void tabInventaireSelectionChange() {
     }
@@ -269,32 +290,27 @@ public class Main extends JFrame{
     private void tabEntretienSelectionChange() {
     }
 
-    private void btnMoinsInvAction() {
+    private void btnFilterAction() {
     }
 
-    private void btnPlusEntAction() {
+    private void btnAddInvAction() {
+        new AddInventaire();
     }
 
-    private void btnMoinsEntAction() {
+    private void btnDelInvAction() {
     }
 
-    private void btnQuitterAction() {
+    private void btnAddEntAction() {
+        new AddEntretien();
     }
 
-    private void miQuitterAction() {
+    private void btnDelEntAction() {
     }
 
-    private void btnPlusInvAction() {
-        new AjoutInventaire();
+    private void btnQuitAction() {
     }
 
-    private void miAProposAction() {
-    }
-
-    private void btnAboutAction() {
-        JOptionPane.showMessageDialog(frame,"Travail Pratique 2\nJean-Philippe Miguel-Gagnon + 1927230\nSession H2021\nDans le cadre du cours 420-C27", "À propos", JOptionPane.INFORMATION_MESSAGE);
-    }
-
+    // --- Méthodes --- //
     public static void main(String[] args) {
         new Main();
     }
