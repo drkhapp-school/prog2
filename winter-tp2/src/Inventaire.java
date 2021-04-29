@@ -50,6 +50,30 @@ public class Inventaire {
         };
     }
 
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCategorie(String categorie) {
+        this.categorie = categorie;
+    }
+
+    public void setNbSerie(String nbSerie) {
+        this.nbSerie = nbSerie;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public void setPrix(double prix) {
+        this.prix = prix;
+    }
+
     public LinkedHashMap<LocalDate, String> getEntretiens() {
         return entretiens;
     }

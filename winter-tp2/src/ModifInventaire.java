@@ -1,8 +1,8 @@
 import com.toedter.calendar.JDateChooser;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Objects;
@@ -34,7 +34,7 @@ public class ModifInventaire extends JDialog {
     Dimension dimTxa = new Dimension(200, 150);
     Dimension dimBas = new Dimension(400, 50);
 
-    public ModifInventaire(int row) {
+    public ModifInventaire(Inventaire inv) {
         dialog = new JDialog((JDialog) null, "Modification inventaire", true);
         dialog.setSize(400, 425);
         dialog.setResizable(false);
@@ -46,10 +46,6 @@ public class ModifInventaire extends JDialog {
         panBas = new JPanel();
         panBas.setLayout(new FlowLayout(FlowLayout.CENTER));
         panBas.setPreferredSize(dimBas);
-
-        // Get info
-        Inventaire inv = Main.ListeInventaire.get(row);
-
 
         labNom = new JLabel("*Nom:");
         labNom.setPreferredSize(dimLab);
@@ -91,7 +87,7 @@ public class ModifInventaire extends JDialog {
 
         btnAjouter = new JButton("Modifier");
         btnAjouter.setPreferredSize(dimBtn);
-        btnAjouter.addActionListener(e -> btnAjouterAction(row));
+        btnAjouter.addActionListener(e -> btnAjouterAction(inv));
 
         btnAnnuler = new JButton("Annuler");
         btnAnnuler.setPreferredSize(dimBtn);
@@ -119,7 +115,7 @@ public class ModifInventaire extends JDialog {
 
     }
 
-    private void btnAjouterAction(int row) {
+    private void btnAjouterAction(Inventaire inv) {
         String[] arr = new String[]{
                 txfNom.getText(),
                 txfSerie.getText(),
@@ -128,44 +124,30 @@ public class ModifInventaire extends JDialog {
                 txaDesc.getText()
         };
 
-        String nom;
-        double prix;
-        LocalDate date;
-        String categorie;
-        String description;
-        String nbSerie;
-
         // Vérification des entrées
         if (Utils.isEmpty(arr[0])) {
-            sendErrorMessage("Nom invalid!");
+            Utils.sendErrorMessage(dialog, "Nom invalid!");
             return;
         }
 
         if (Utils.isNotDouble(arr[3])) {
-            sendErrorMessage("Prix invalid!");
+            Utils.sendErrorMessage(dialog, "Prix invalid!");
             return;
         }
 
-        nom = arr[0];
-        nbSerie = arr[1];
-        categorie = arr[2];
-        prix = Double.parseDouble(arr[3]);
-        description = arr[4];
-        date = dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        if (dateChooser.getDate() == null) {
+            Utils.sendErrorMessage(dialog, "Date invalid!");
+            return;
+        }
 
-        Main.ListeInventaire.set(row, new Inventaire(nom, description, categorie, date, nbSerie, prix));
+        inv.setNom(arr[0]);
+        inv.setNbSerie(arr[1]);
+        inv.setCategorie(arr[2]);
+        inv.setPrix(Double.parseDouble(arr[3]));
+        inv.setDescription(arr[4]);
+        inv.setDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         dialog.dispose();
     }
-
-    /**
-     * Génère un message d'erreur selon le contexte
-     *
-     * @param message le message d'erreur à montrer
-     */
-    private void sendErrorMessage(String message) {
-        JOptionPane.showMessageDialog(dialog, message, "Message d'erreur", JOptionPane.ERROR_MESSAGE);
-    }
-
 
     private void btnAnnulerAction() {
         dialog.dispose();

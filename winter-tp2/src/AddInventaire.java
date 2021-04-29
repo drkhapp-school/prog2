@@ -5,6 +5,7 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
@@ -35,7 +36,7 @@ public class AddInventaire extends JDialog {
     Dimension dimTxa = new Dimension(200, 150);
     Dimension dimBas = new Dimension(400, 50);
 
-    public AddInventaire() {
+    public AddInventaire(ArrayList<Inventaire> array) {
         dialog = new JDialog((JDialog) null, "Ajout Inventaire", true);
         dialog.setSize(400, 425);
         dialog.setResizable(false);
@@ -89,7 +90,7 @@ public class AddInventaire extends JDialog {
 
         btnAjouter = new JButton("Ajouter");
         btnAjouter.setPreferredSize(dimBtn);
-        btnAjouter.addActionListener(e -> btnAjouterAction());
+        btnAjouter.addActionListener(e -> btnAjouterAction(array));
 
         btnAnnuler = new JButton("Annuler");
         btnAnnuler.setPreferredSize(dimBtn);
@@ -117,7 +118,7 @@ public class AddInventaire extends JDialog {
 
     }
 
-    private void btnAjouterAction() {
+    private void btnAjouterAction(ArrayList<Inventaire> array) {
         String[] arr = new String[]{
                 txfNom.getText(),
                 txfSerie.getText(),
@@ -135,12 +136,17 @@ public class AddInventaire extends JDialog {
 
         // Vérification des entrées
         if (Utils.isEmpty(arr[0])) {
-            sendErrorMessage("Nom invalid!");
+            Utils.sendErrorMessage(dialog, "Nom invalid!");
             return;
         }
 
         if (Utils.isNotDouble(arr[3])) {
-            sendErrorMessage("Prix invalid!");
+            Utils.sendErrorMessage(dialog, "Prix invalid!");
+            return;
+        }
+
+        if (dateChooser.getDate() == null) {
+            Utils.sendErrorMessage(dialog, "Date invalid!");
             return;
         }
 
@@ -151,20 +157,9 @@ public class AddInventaire extends JDialog {
         description = arr[4];
         date = dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-        Main.ListeInventaire.add(new Inventaire(nom, description, categorie, date, nbSerie, prix));
-        Main.success = true;
+        array.add(new Inventaire(nom, description, categorie, date, nbSerie, prix));
         dialog.dispose();
     }
-
-    /**
-     * Génère un message d'erreur selon le contexte
-     *
-     * @param message le message d'erreur à montrer
-     */
-    private void sendErrorMessage(String message) {
-        JOptionPane.showMessageDialog(dialog, message, "Message d'erreur", JOptionPane.ERROR_MESSAGE);
-    }
-
 
     private void btnAnnulerAction() {
         dialog.dispose();

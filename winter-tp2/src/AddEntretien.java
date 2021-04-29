@@ -1,4 +1,5 @@
 import com.toedter.calendar.JDateChooser;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -15,15 +16,12 @@ public class AddEntretien extends JDialog {
 
     JPanel panBas;
 
-    String[] categories = {"Jeux", "Caméra", "Accessoires"};
-
-    Dimension dimTxf = new Dimension(200, 30);
     Dimension dimBtn = new Dimension(100, 30);
     Dimension dimLab = new Dimension(125, 30);
     Dimension dimTxa = new Dimension(200, 150);
     Dimension dimBas = new Dimension(400, 50);
 
-    public AddEntretien() {
+    public AddEntretien(Inventaire inv) {
         dialog = new JDialog((JDialog) null, "Ajout Entretien", true);
         dialog.setSize(400, 275);
         dialog.setResizable(false);
@@ -70,10 +68,11 @@ public class AddEntretien extends JDialog {
         dialog.setVisible(true);
 
     }
+    private void btnAjouterAction() {
+        dialog.dispose();
+    }
 
     private void btnAnnulerAction() {
     }
 
-    private void btnAjouterAction() {
-    }
 }

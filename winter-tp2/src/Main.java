@@ -7,9 +7,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-public class Main extends JFrame{
-    public static final ArrayList<Inventaire> ListeInventaire = new ArrayList<>();
-    public static boolean success = false;
+public class Main extends JFrame {
+    ArrayList<Inventaire> ListeInventaire = new ArrayList<>();
 
     DefaultTableModel mdlInventaire;
     DefaultTableModel mdlEntretien;
@@ -61,7 +60,7 @@ public class Main extends JFrame{
         frame.setVisible(true);
     }
 
-    private void createMenuBar(){
+    private void createMenuBar() {
         menuBar = new JMenuBar();
 
         // Menu "TP2"
@@ -104,7 +103,7 @@ public class Main extends JFrame{
         frame.setJMenuBar(menuBar);
     }
 
-    private void createPanNorth(){
+    private void createPanNorth() {
         panNorth = new JPanel();
         panNorth.setLayout(new FlowLayout(FlowLayout.LEFT));
         panNorth.setPreferredSize(dimNorth);
@@ -122,7 +121,7 @@ public class Main extends JFrame{
         frame.add(panNorth, BorderLayout.NORTH);
     }
 
-    private void createPanEast(){
+    private void createPanEast() {
         panEast = new JPanel();
         panEast.setLayout(new FlowLayout(FlowLayout.LEFT));
         panEast.setPreferredSize(dimEast);
@@ -130,33 +129,13 @@ public class Main extends JFrame{
         // Tableau d'entretien
         mdlEntretien = new DefaultTableModel(colEntretien, 1) {
             @Override
-            public boolean isCellEditable(int row, int column ) {
+            public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
 
         tabEntretien = new JTable(mdlEntretien);
         tabEntretien.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tabEntretien.getSelectionModel().addListSelectionListener(e -> {
-            if (e.getValueIsAdjusting()) {
-                tabEntretienSelectionChange();
-            }
-        });
-
-        tabEntretien.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) { }
-
-            @Override
-            public void keyPressed(KeyEvent e) { }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    tabEntretienSelectionChange();
-                }
-            }
-        });
 
         JScrollPane scrollEnt = new JScrollPane(tabEntretien);
         scrollEnt.setPreferredSize(new Dimension(490, 600));
@@ -177,7 +156,7 @@ public class Main extends JFrame{
         frame.add(panEast, BorderLayout.EAST);
     }
 
-    private void createPanWest(){
+    private void createPanWest() {
         panWest = new JPanel();
         panWest.setLayout(new FlowLayout(FlowLayout.LEFT));
         panWest.setPreferredSize(dimWest);
@@ -185,7 +164,7 @@ public class Main extends JFrame{
         // Tableau d'inventaire
         mdlInventaire = new DefaultTableModel(colInventaire, 0) {
             @Override
-            public boolean isCellEditable(int row, int column ) {
+            public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
@@ -201,10 +180,12 @@ public class Main extends JFrame{
 
         tabInventaire.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) { }
+            public void keyTyped(KeyEvent e) {
+            }
 
             @Override
-            public void keyPressed(KeyEvent e) { }
+            public void keyPressed(KeyEvent e) {
+            }
 
             @Override
             public void keyReleased(KeyEvent e) {
@@ -216,7 +197,7 @@ public class Main extends JFrame{
 
         tabInventaire.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent mouseEvent) {
-                JTable table =(JTable) mouseEvent.getSource();
+                JTable table = (JTable) mouseEvent.getSource();
                 if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
                     modifyInventaire();
                 }
@@ -242,7 +223,7 @@ public class Main extends JFrame{
         frame.add(panWest, BorderLayout.WEST);
     }
 
-    private void createPanSouth(){
+    private void createPanSouth() {
         panSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panSouth.setPreferredSize(dimSouth);
 
@@ -258,7 +239,7 @@ public class Main extends JFrame{
     // --- Bar de Menu: TP2 --- //
 
     private void miAboutAction() {
-        JOptionPane.showMessageDialog(frame,"Travail Pratique 2\nJean-Philippe Miguel-Gagnon - 1927230\nSession H2021\nDans le cadre du cours 420-C27", "À propos", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(frame, "Travail Pratique 2\nJean-Philippe Miguel-Gagnon - 1927230\nSession H2021\nDans le cadre du cours 420-C27", "À propos", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void miQuitAction() {
@@ -290,23 +271,23 @@ public class Main extends JFrame{
     private void tabInventaireSelectionChange() {
     }
 
-    private void tabEntretienSelectionChange() {
-    }
-
     private void btnFilterAction() {
     }
 
     private void btnAddInvAction() {
-        new AddInventaire();
-        if (success) {
+        int currentSize = ListeInventaire.size();
+
+        new AddInventaire(ListeInventaire);
+        if (currentSize != ListeInventaire.size()) {
             updateInventaire();
             tabInventaire.setRowSelectionInterval(mdlInventaire.getRowCount() - 1, mdlInventaire.getRowCount() - 1);
-            success = false;
         }
     }
 
     private void modifyInventaire() {
-        new ModifInventaire(tabInventaire.getSelectedRow());
+        Inventaire inv = ListeInventaire.get(tabInventaire.getSelectedRow());
+
+        new ModifInventaire(inv);
         updateInventaire();
     }
 
@@ -319,7 +300,10 @@ public class Main extends JFrame{
     }
 
     private void btnAddEntAction() {
-        new AddEntretien();
+        Inventaire inv = ListeInventaire.get(tabInventaire.getSelectedRow());
+
+        new AddEntretien(inv);
+        updateEntretien(inv);
     }
 
     private void btnDelEntAction() {
@@ -338,5 +322,10 @@ public class Main extends JFrame{
         for (Inventaire inventaire : ListeInventaire) {
             mdlInventaire.addRow(inventaire.toObject());
         }
+    }
+
+    private void updateEntretien(Inventaire inv) {
+        mdlEntretien.setRowCount(0);
+        inv.getEntretiens().forEach((date, desc) -> mdlEntretien.addRow(new Object[]{date, desc}));
     }
 }
