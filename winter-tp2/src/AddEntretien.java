@@ -3,6 +3,8 @@ import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class AddEntretien extends JDialog {
@@ -49,7 +51,7 @@ public class AddEntretien extends JDialog {
 
         btnAjouter = new JButton("Ajouter");
         btnAjouter.setPreferredSize(dimBtn);
-        btnAjouter.addActionListener(e -> btnAjouterAction());
+        btnAjouter.addActionListener(e -> btnAjouterAction(inv));
 
         btnAnnuler = new JButton("Annuler");
         btnAnnuler.setPreferredSize(dimBtn);
@@ -68,7 +70,25 @@ public class AddEntretien extends JDialog {
         dialog.setVisible(true);
 
     }
-    private void btnAjouterAction() {
+    private void btnAjouterAction(Inventaire inv) {
+        LocalDate date;
+        String description;
+
+        // Vérification des entrées
+        if (dateChooser.getDate() == null) {
+            Utils.sendErrorMessage(dialog, "Date invalid!");
+            return;
+        }
+
+        if (Utils.isEmpty(txaDesc.getText())) {
+            Utils.sendErrorMessage(dialog, "Description invalid!");
+            return;
+        }
+
+        date = dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        description = txaDesc.getText();
+
+        inv.addEntretien(date, description);
         dialog.dispose();
     }
 

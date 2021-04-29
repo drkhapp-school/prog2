@@ -82,7 +82,7 @@ public class Inventaire {
         entretiens.put(date, detail);
     }
 
-    public void delEntretien(LocalDate date, String detail) {
-        entretiens.remove(date, detail);
+    public void delEntretien(LocalDate date) {
+        entretiens.remove(date);
     }
 }

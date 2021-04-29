@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Main extends JFrame {
@@ -127,7 +128,7 @@ public class Main extends JFrame {
         panEast.setPreferredSize(dimEast);
 
         // Tableau d'entretien
-        mdlEntretien = new DefaultTableModel(colEntretien, 1) {
+        mdlEntretien = new DefaultTableModel(colEntretien, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -269,11 +270,17 @@ public class Main extends JFrame {
     // --- Action Listeners --- //
 
     private void tabInventaireSelectionChange() {
+        int row = tabInventaire.getSelectedRow();
+        updateEntretien(ListeInventaire.get(row));
     }
 
     private void btnFilterAction() {
     }
 
+    private void btnQuitAction() {
+    }
+
+    // --- Inventaire --- //
     private void btnAddInvAction() {
         int currentSize = ListeInventaire.size();
 
@@ -281,14 +288,17 @@ public class Main extends JFrame {
         if (currentSize != ListeInventaire.size()) {
             updateInventaire();
             tabInventaire.setRowSelectionInterval(mdlInventaire.getRowCount() - 1, mdlInventaire.getRowCount() - 1);
+            tabInventaireSelectionChange();
         }
     }
 
     private void modifyInventaire() {
+        int currentSize = ListeInventaire.size();
         Inventaire inv = ListeInventaire.get(tabInventaire.getSelectedRow());
 
         new ModifInventaire(inv);
-        updateInventaire();
+        if (currentSize != ListeInventaire.size())
+            updateInventaire();
     }
 
     private void btnDelInvAction() {
@@ -296,20 +306,32 @@ public class Main extends JFrame {
         if (row == -1) return;
 
         ListeInventaire.remove(row);
+        tabInventaireSelectionChange();
         updateInventaire();
     }
 
+    // --- Entretien --- //
+
     private void btnAddEntAction() {
-        Inventaire inv = ListeInventaire.get(tabInventaire.getSelectedRow());
+        int row = tabInventaire.getSelectedRow();
+        if (row == -1) return;
+
+        Inventaire inv = ListeInventaire.get(row);
 
         new AddEntretien(inv);
         updateEntretien(inv);
     }
 
     private void btnDelEntAction() {
-    }
+        int rowInv = tabInventaire.getSelectedRow();
+        int rowEnt = tabEntretien.getSelectedRow();
+        if (rowInv == -1 || rowEnt == -1) return;
 
-    private void btnQuitAction() {
+        Inventaire inv = ListeInventaire.get(rowInv);
+        LocalDate key = (LocalDate) tabEntretien.getValueAt(rowEnt, 0);
+
+        inv.delEntretien(key);
+        updateEntretien(inv);
     }
 
     // --- Méthodes --- //
