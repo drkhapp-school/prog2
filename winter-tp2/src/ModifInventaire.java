@@ -130,7 +130,7 @@ public class ModifInventaire extends JDialog {
             return;
         }
 
-        if (arr[3].isBlank()) {
+        if (Utils.isNotDouble(arr[3])) {
             Utils.sendErrorMessage(dialog, "Prix invalid!");
             return;
         }
