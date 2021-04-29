@@ -80,7 +80,7 @@ public class AddEntretien extends JDialog {
             return;
         }
 
-        if (Utils.isEmpty(txaDesc.getText())) {
+        if (txaDesc.getText().isBlank()) {
             Utils.sendErrorMessage(dialog, "Description invalid!");
             return;
         }

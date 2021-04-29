@@ -135,12 +135,12 @@ public class AddInventaire extends JDialog {
         String nbSerie;
 
         // Vérification des entrées
-        if (Utils.isEmpty(arr[0])) {
+        if (arr[0].isBlank()) {
             Utils.sendErrorMessage(dialog, "Nom invalid!");
             return;
         }
 
-        if (Utils.isNotDouble(arr[3])) {
+        if (arr[3].isBlank()) {
             Utils.sendErrorMessage(dialog, "Prix invalid!");
             return;
         }
