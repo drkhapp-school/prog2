@@ -1,15 +1,15 @@
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Main extends JFrame {
     ArrayList<Inventaire> ListeInventaire = new ArrayList<>();
+    boolean isLoaded = false;
 
     DefaultTableModel mdlInventaire;
     DefaultTableModel mdlEntretien;
@@ -28,6 +28,8 @@ public class Main extends JFrame {
     JButton btnDelEnt;
     JButton btnQuit;
 
+    JFileChooser fc;
+
     JPanel panNorth;
     JPanel panWest;
     JPanel panEast;
@@ -35,6 +37,9 @@ public class Main extends JFrame {
 
     String[] colInventaire = {"Nom", "Catégorie", "Prix", "Date achat", "Description"};
     String[] colEntretien = {"Date", "Description"};
+
+    String filePath;
+    String title = "Jean-Philippe Miguel-Gagnon";
 
     Dimension dimTxf = new Dimension(150, 30);
     Dimension dimBtn = new Dimension(100, 25);
@@ -46,12 +51,22 @@ public class Main extends JFrame {
     // --- Constructeur --- //
 
     public Main() {
-        frame = new JFrame("Jean-Philippe Miguel-Gagnon - 1927230");
+        frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(1325, 800);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout());
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                try {
+                    miQuitAction();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        });
 
         createMenuBar();
         createPanNorth();
@@ -69,7 +84,13 @@ public class Main extends JFrame {
         miAbout = new JMenuItem("À propos");
         miAbout.addActionListener(e -> miAboutAction());
         miQuit = new JMenuItem("Quitter");
-        miQuit.addActionListener(e -> miQuitAction());
+        miQuit.addActionListener(e -> {
+            try {
+                miQuitAction();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
 
         menuBar.add(menuTP2);
         menuTP2.add(miAbout);
@@ -79,17 +100,53 @@ public class Main extends JFrame {
         // Menu "Fichier"
         menuFichier = new JMenu("Fichier");
         miNew = new JMenuItem("Nouveau...");
-        miNew.addActionListener(e -> miNewAction());
+        miNew.addActionListener(e -> {
+            try {
+                miNewAction();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         miOpen = new JMenuItem("Ouvrir...");
-        miOpen.addActionListener(e -> miOpenAction());
+        miOpen.addActionListener(e -> {
+            try {
+                miOpenAction();
+            } catch (IOException | ClassNotFoundException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         miClose = new JMenuItem("Fermer");
-        miClose.addActionListener(e -> miCloseAction());
+        miClose.addActionListener(e -> {
+            try {
+                miCloseAction();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         miSave = new JMenuItem("Enregistrer");
-        miSave.addActionListener(e -> miSaveAction());
+        miSave.addActionListener(e -> {
+            try {
+                miSaveAction();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         miSaveAs = new JMenuItem("Enregistrer sous...");
-        miSaveAs.addActionListener(e -> miSaveAsAction());
+        miSaveAs.addActionListener(e -> {
+            try {
+                miSaveAsAction();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
         miExport = new JMenuItem("Exporter...");
-        miExport.addActionListener(e -> miExportAction());
+        miExport.addActionListener(e -> {
+            try {
+                miExportAction();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
 
         menuBar.add(menuFichier);
         menuFichier.add(miNew);
@@ -230,7 +287,13 @@ public class Main extends JFrame {
 
         btnQuit = new JButton("Quitter");
         btnQuit.setPreferredSize(dimBtn);
-        btnQuit.addActionListener(e -> btnQuitAction());
+        btnQuit.addActionListener(e -> {
+            try {
+                btnQuitAction();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
 
         panSouth.add(btnQuit);
 
@@ -243,27 +306,186 @@ public class Main extends JFrame {
         JOptionPane.showMessageDialog(frame, "Travail Pratique 2\nJean-Philippe Miguel-Gagnon - 1927230\nSession H2021\nDans le cadre du cours 420-C27", "À propos", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void miQuitAction() {
-    }
-
-    private void miNewAction() {
+    private void miQuitAction() throws IOException {
+        int quitConfirm = JOptionPane.showConfirmDialog(frame, "Voulez-vous quitter?", "Confirmation de fermeture", JOptionPane.YES_NO_OPTION);
+        if (quitConfirm == JOptionPane.YES_OPTION) {
+            if (isLoaded) {
+                int rep = saveConfirm();
+                if (rep == JOptionPane.YES_OPTION) {
+                    miSaveAction();
+                    isLoaded = false;
+                } else if (rep == JOptionPane.CANCEL_OPTION) {
+                    return;
+                }
+            }
+            System.exit(0);
+        }
     }
 
     // --- Bar de Menu: Fichier --- //
 
-    private void miOpenAction() {
+    private void miOpenAction() throws IOException, ClassNotFoundException {
+        if (isLoaded) {
+            int rep = saveConfirm();
+            if (rep == JOptionPane.YES_OPTION) {
+                miSaveAction();
+            } else if (rep == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
+        }
+
+        fc = new JFileChooser();
+
+        fc.setDialogTitle("Ouverture de fichier");
+        FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
+        fc.setFileFilter(fcFilter);
+
+        int rep = fc.showOpenDialog(frame);
+        if (rep == JFileChooser.APPROVE_OPTION) {
+            File fichier = fc.getSelectedFile();
+            filePath = fichier.getPath();
+            try {
+                ObjectInputStream input = new ObjectInputStream(new FileInputStream(filePath));
+                ListeInventaire = (ArrayList<Inventaire>) input.readObject();
+                input.close();
+            } catch (FileNotFoundException ignored) {
+            }
+
+            updateInventaire();
+
+            isLoaded = true;
+            frame.setTitle(fichier.getName() + " " + title);
+        }
     }
 
-    private void miCloseAction() {
+    private void miNewAction() throws IOException {
+        if (isLoaded) {
+            int rep = saveConfirm();
+            if (rep == JOptionPane.YES_OPTION) {
+                miSaveAction();
+                isLoaded = false;
+                miCloseAction();
+            } else if (rep == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
+        }
+
+        fc = new JFileChooser();
+
+        fc.setDialogTitle("Nouveau inventaire");
+        FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
+        fc.setFileFilter(fcFilter);
+
+        int rep = fc.showSaveDialog(frame);
+        if (rep == JFileChooser.APPROVE_OPTION) {
+            File fichier = fc.getSelectedFile();
+            String fileName = fichier.getName();
+            filePath = fichier.getPath();
+
+            if (!filePath.endsWith("dat"))
+                filePath = filePath.concat(".dat");
+
+            if (!fileName.endsWith("dat"))
+                fileName = fileName.concat(".dat");
+
+            writeFileObject(filePath);
+
+            isLoaded = true;
+            frame.setTitle(fileName + " " + title);
+        }
     }
 
-    private void miSaveAction() {
+    private void miCloseAction() throws IOException {
+        if (isLoaded) {
+            int rep = saveConfirm();
+            if (rep == JOptionPane.YES_OPTION) {
+                miSaveAction();
+                isLoaded = false;
+            } else if (rep == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
+        }
+
+        ListeInventaire.clear();
+        updateInventaire();
+        isLoaded = false;
+
+        frame.setTitle(title);
     }
 
-    private void miSaveAsAction() {
+    private void miSaveAction() throws IOException {
+        if (!isLoaded) {
+            return;
+        }
+        writeFileObject(filePath);
     }
 
-    private void miExportAction() {
+
+    private void miSaveAsAction() throws IOException {
+        if (!isLoaded) {
+            return;
+        }
+        fc = new JFileChooser();
+
+        fc.setDialogTitle("Enregistrement inventaire");
+        FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
+        fc.setFileFilter(fcFilter);
+
+        int rep = fc.showSaveDialog(frame);
+        if (rep == JFileChooser.APPROVE_OPTION) {
+            File fichier = fc.getSelectedFile();
+            String fileName = fichier.getName();
+            filePath = fichier.getPath();
+
+            if (!filePath.endsWith("dat"))
+                filePath = filePath.concat(".dat");
+
+            if (!fileName.endsWith("dat"))
+                fileName = fileName.concat(".dat");
+
+            writeFileObject(filePath);
+            frame.setTitle(fileName + " " + title);
+        }
+    }
+
+    private void miExportAction() throws IOException {
+        if (!isLoaded) {
+            return;
+        }
+
+        fc = new JFileChooser();
+
+        fc.setDialogTitle("Enregistrement inventaire");
+        FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
+        fc.setFileFilter(fcFilter);
+
+        int rep = fc.showSaveDialog(frame);
+        if (rep == JFileChooser.APPROVE_OPTION) {
+            File fichier = fc.getSelectedFile();
+            String output = fichier.getPath();
+
+            if (!output.endsWith("txt"))
+                output = output.concat(".txt");
+
+            writeExport(output);
+        }
+    }
+
+    private void writeFileObject(String fileName) throws IOException {
+        ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(fileName));
+        output.writeObject(ListeInventaire);
+        output.close();
+    }
+
+    private void writeExport(String fileName) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false));
+
+        for (Inventaire inv : ListeInventaire) {
+            writer.write(inv.toString());
+            writer.newLine();
+        }
+
+        writer.close();
     }
 
 
@@ -271,17 +493,24 @@ public class Main extends JFrame {
 
     private void tabInventaireSelectionChange() {
         int row = tabInventaire.getSelectedRow();
+        if (row == -1) return;
+
         updateEntretien(ListeInventaire.get(row));
     }
 
     private void btnFilterAction() {
     }
 
-    private void btnQuitAction() {
+    private void btnQuitAction() throws IOException {
+        miQuitAction();
     }
 
     // --- Inventaire --- //
     private void btnAddInvAction() {
+        if (!isLoaded) {
+            return;
+        }
+
         int currentSize = ListeInventaire.size();
 
         new AddInventaire(ListeInventaire);
@@ -293,15 +522,20 @@ public class Main extends JFrame {
     }
 
     private void modifyInventaire() {
-        int currentSize = ListeInventaire.size();
         Inventaire inv = ListeInventaire.get(tabInventaire.getSelectedRow());
+        int row = ListeInventaire.indexOf(inv);
 
         new ModifInventaire(inv);
-        if (currentSize != ListeInventaire.size())
-            updateInventaire();
+        updateInventaire();
+        tabInventaire.setRowSelectionInterval(row, row);
+        tabInventaireSelectionChange();
     }
 
     private void btnDelInvAction() {
+        if (!isLoaded) {
+            return;
+        }
+
         int row = tabInventaire.getSelectedRow();
         if (row == -1) return;
 
@@ -311,8 +545,11 @@ public class Main extends JFrame {
     }
 
     // --- Entretien --- //
-
     private void btnAddEntAction() {
+        if (!isLoaded) {
+            return;
+        }
+
         int row = tabInventaire.getSelectedRow();
         if (row == -1) return;
 
@@ -323,6 +560,10 @@ public class Main extends JFrame {
     }
 
     private void btnDelEntAction() {
+        if (!isLoaded) {
+            return;
+        }
+
         int rowInv = tabInventaire.getSelectedRow();
         int rowEnt = tabEntretien.getSelectedRow();
         if (rowInv == -1 || rowEnt == -1) return;
@@ -341,13 +582,15 @@ public class Main extends JFrame {
 
     private void updateInventaire() {
         mdlInventaire.setRowCount(0);
-        for (Inventaire inventaire : ListeInventaire) {
-            mdlInventaire.addRow(inventaire.toObject());
-        }
+        for (Inventaire inventaire : ListeInventaire) mdlInventaire.addRow(inventaire.toObject());
     }
 
     private void updateEntretien(Inventaire inv) {
         mdlEntretien.setRowCount(0);
         inv.getEntretiens().forEach((date, desc) -> mdlEntretien.addRow(new Object[]{date, desc}));
+    }
+
+    private int saveConfirm() {
+        return JOptionPane.showConfirmDialog(frame, "Voulez-vous sauvegarder?", "Confirmation de sauvegarde", JOptionPane.YES_NO_CANCEL_OPTION);
     }
 }

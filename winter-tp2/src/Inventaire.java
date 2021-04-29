@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 
-public class Inventaire {
+public class Inventaire implements Serializable {
     private String nom;
     private String description;
     private String categorie;
@@ -84,5 +85,21 @@ public class Inventaire {
 
     public void delEntretien(LocalDate date) {
         entretiens.remove(date);
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(this.nom).append(", ")
+                .append(this.nbSerie).append(", ")
+                .append(this.categorie).append(", ")
+                .append(this.prix).append(", ")
+                .append(this.date).append(", ")
+                .append(this.description).append("\n");
+
+        entretiens.forEach((date, desc) -> sb.append(date).append(", ").append(desc).append("\n"));
+
+        return sb.toString();
     }
 }
