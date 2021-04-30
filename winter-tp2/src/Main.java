@@ -83,6 +83,8 @@ public class Main extends JFrame {
         menuTP2 = new JMenu("TP2");
         miAbout = new JMenuItem("À propos");
         miAbout.addActionListener(e -> miAboutAction());
+        miAbout.setAccelerator(KeyStroke.getKeyStroke('A', InputEvent.CTRL_DOWN_MASK));
+
         miQuit = new JMenuItem("Quitter");
         miQuit.addActionListener(e -> {
             try {
@@ -91,6 +93,7 @@ public class Main extends JFrame {
                 ioException.printStackTrace();
             }
         });
+        miQuit.setAccelerator(KeyStroke.getKeyStroke('Q', InputEvent.CTRL_DOWN_MASK));
 
         menuBar.add(menuTP2);
         menuTP2.add(miAbout);
@@ -107,6 +110,8 @@ public class Main extends JFrame {
                 ioException.printStackTrace();
             }
         });
+        miNew.setAccelerator(KeyStroke.getKeyStroke('N', InputEvent.CTRL_DOWN_MASK));
+
         miOpen = new JMenuItem("Ouvrir...");
         miOpen.addActionListener(e -> {
             try {
@@ -115,6 +120,8 @@ public class Main extends JFrame {
                 ioException.printStackTrace();
             }
         });
+        miOpen.setAccelerator(KeyStroke.getKeyStroke('O', InputEvent.CTRL_DOWN_MASK));
+
         miClose = new JMenuItem("Fermer");
         miClose.addActionListener(e -> {
             try {
@@ -123,6 +130,8 @@ public class Main extends JFrame {
                 ioException.printStackTrace();
             }
         });
+        miClose.setAccelerator(KeyStroke.getKeyStroke('F', InputEvent.CTRL_DOWN_MASK));
+
         miSave = new JMenuItem("Enregistrer");
         miSave.addActionListener(e -> {
             try {
@@ -131,6 +140,8 @@ public class Main extends JFrame {
                 ioException.printStackTrace();
             }
         });
+        miSave.setAccelerator(KeyStroke.getKeyStroke('S', InputEvent.CTRL_DOWN_MASK));
+
         miSaveAs = new JMenuItem("Enregistrer sous...");
         miSaveAs.addActionListener(e -> {
             try {
@@ -139,6 +150,8 @@ public class Main extends JFrame {
                 ioException.printStackTrace();
             }
         });
+        miSaveAs.setAccelerator(KeyStroke.getKeyStroke('S', InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
+
         miExport = new JMenuItem("Exporter...");
         miExport.addActionListener(e -> {
             try {
@@ -147,6 +160,7 @@ public class Main extends JFrame {
                 ioException.printStackTrace();
             }
         });
+        miExport.setAccelerator(KeyStroke.getKeyStroke('E', InputEvent.CTRL_DOWN_MASK));
 
         menuBar.add(menuFichier);
         menuFichier.add(miNew);
@@ -351,7 +365,7 @@ public class Main extends JFrame {
             } catch (FileNotFoundException ignored) {
             }
 
-            updateInventaire();
+            resetFrame();
 
             isLoaded = true;
             frame.setTitle(fichier.getName() + " " + title);
@@ -407,24 +421,20 @@ public class Main extends JFrame {
         }
 
         ListeInventaire.clear();
-        updateInventaire();
+        resetFrame();
         isLoaded = false;
 
         frame.setTitle(title);
     }
 
     private void miSaveAction() throws IOException {
-        if (!isLoaded) {
-            return;
-        }
+        if (!isLoaded) return;
         writeFileObject(filePath);
     }
 
 
     private void miSaveAsAction() throws IOException {
-        if (!isLoaded) {
-            return;
-        }
+        if (!isLoaded) return;
         fc = new JFileChooser();
 
         fc.setDialogTitle("Enregistrement inventaire");
@@ -449,9 +459,7 @@ public class Main extends JFrame {
     }
 
     private void miExportAction() throws IOException {
-        if (!isLoaded) {
-            return;
-        }
+        if (!isLoaded) return;
 
         fc = new JFileChooser();
 
@@ -507,9 +515,7 @@ public class Main extends JFrame {
 
     // --- Inventaire --- //
     private void btnAddInvAction() {
-        if (!isLoaded) {
-            return;
-        }
+        if (!isLoaded) return;
 
         int currentSize = ListeInventaire.size();
 
@@ -532,9 +538,7 @@ public class Main extends JFrame {
     }
 
     private void btnDelInvAction() {
-        if (!isLoaded) {
-            return;
-        }
+        if (!isLoaded) return;
 
         int row = tabInventaire.getSelectedRow();
         if (row == -1) return;
@@ -546,9 +550,7 @@ public class Main extends JFrame {
 
     // --- Entretien --- //
     private void btnAddEntAction() {
-        if (!isLoaded) {
-            return;
-        }
+        if (!isLoaded) return;
 
         int row = tabInventaire.getSelectedRow();
         if (row == -1) return;
@@ -560,9 +562,7 @@ public class Main extends JFrame {
     }
 
     private void btnDelEntAction() {
-        if (!isLoaded) {
-            return;
-        }
+        if (!isLoaded) return;
 
         int rowInv = tabInventaire.getSelectedRow();
         int rowEnt = tabEntretien.getSelectedRow();
@@ -592,5 +592,10 @@ public class Main extends JFrame {
 
     private int saveConfirm() {
         return JOptionPane.showConfirmDialog(frame, "Voulez-vous sauvegarder?", "Confirmation de sauvegarde", JOptionPane.YES_NO_CANCEL_OPTION);
+    }
+
+    private void resetFrame() {
+        updateInventaire();
+        mdlEntretien.setRowCount(0);
     }
 }
