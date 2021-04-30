@@ -5,11 +5,18 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
 public class AddInventaire extends JDialog {
+    private boolean validEntry = false;
+    private String nom;
+    private String nbSerie;
+    private String categorie;
+    private double prix;
+    private String description;
+    private LocalDate date;
+
     JDialog dialog;
     JLabel labNom;
     JTextField txfNom;
@@ -36,7 +43,7 @@ public class AddInventaire extends JDialog {
     Dimension dimTxa = new Dimension(200, 150);
     Dimension dimBas = new Dimension(400, 50);
 
-    public AddInventaire(ArrayList<Inventaire> array) {
+    public AddInventaire() {
         dialog = new JDialog((JDialog) null, "Ajout Inventaire", true);
         dialog.setSize(400, 425);
         dialog.setResizable(false);
@@ -90,7 +97,7 @@ public class AddInventaire extends JDialog {
 
         btnAjouter = new JButton("Ajouter");
         btnAjouter.setPreferredSize(dimBtn);
-        btnAjouter.addActionListener(e -> btnAjouterAction(array));
+        btnAjouter.addActionListener(e -> btnAjouterAction());
 
         btnAnnuler = new JButton("Annuler");
         btnAnnuler.setPreferredSize(dimBtn);
@@ -118,50 +125,54 @@ public class AddInventaire extends JDialog {
 
     }
 
-    private void btnAjouterAction(ArrayList<Inventaire> array) {
-        String[] arr = new String[]{
-                txfNom.getText(),
-                txfSerie.getText(),
-                Objects.requireNonNull(CmbCat.getSelectedItem()).toString(),
-                txfPrix.getText(),
-                txaDesc.getText()
-        };
+    private void btnAjouterAction() {
+        try{
+            nom = txfNom.getText();
+            nbSerie = txfSerie.getText();
+            categorie = Objects.requireNonNull(CmbCat.getSelectedItem()).toString();
+            prix = Double.parseDouble(txfPrix.getText());
+            description = txaDesc.getText();
+            date = dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-        String nom;
-        double prix;
-        LocalDate date;
-        String categorie;
-        String description;
-        String nbSerie;
+            // Vérifier si le nom est vide
+            if (nom.isBlank()) throw new IllegalArgumentException();
 
-        // Vérification des entrées
-        if (arr[0].isBlank()) {
-            Utils.sendErrorMessage(dialog, "Nom invalid!");
-            return;
+            validEntry = true;
+            dialog.dispose();
+        } catch(IllegalArgumentException | NullPointerException e){
+            Utils.sendErrorMessage(dialog, "Erreur de donnée!");
         }
-
-        if (Utils.isNotDouble(arr[3])) {
-            Utils.sendErrorMessage(dialog, "Prix invalid!");
-            return;
-        }
-
-        if (dateChooser.getDate() == null) {
-            Utils.sendErrorMessage(dialog, "Date invalid!");
-            return;
-        }
-
-        nom = arr[0];
-        nbSerie = arr[1];
-        categorie = arr[2];
-        prix = Double.parseDouble(arr[3]);
-        description = arr[4];
-        date = dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-        array.add(new Inventaire(nom, description, categorie, date, nbSerie, prix));
-        dialog.dispose();
     }
 
     private void btnAnnulerAction() {
         dialog.dispose();
+    }
+
+    public boolean hasValidEntry() {
+        return validEntry;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public String getNbSerie() {
+        return nbSerie;
+    }
+
+    public String getCategorie() {
+        return categorie;
+    }
+
+    public double getPrix() {
+        return prix;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public LocalDate getDate() {
+        return date;
     }
 }

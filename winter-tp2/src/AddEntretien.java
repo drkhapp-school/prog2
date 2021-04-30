@@ -8,6 +8,10 @@ import java.time.ZoneId;
 import java.util.Date;
 
 public class AddEntretien extends JDialog {
+    private boolean validEntry = false;
+    private String description;
+    private LocalDate date;
+
     JDialog dialog;
     JLabel labDate;
     JLabel labDesc;
@@ -23,7 +27,7 @@ public class AddEntretien extends JDialog {
     Dimension dimTxa = new Dimension(200, 150);
     Dimension dimBas = new Dimension(400, 50);
 
-    public AddEntretien(Inventaire inv) {
+    public AddEntretien() {
         dialog = new JDialog((JDialog) null, "Ajout Entretien", true);
         dialog.setSize(400, 275);
         dialog.setResizable(false);
@@ -51,7 +55,7 @@ public class AddEntretien extends JDialog {
 
         btnAjouter = new JButton("Ajouter");
         btnAjouter.setPreferredSize(dimBtn);
-        btnAjouter.addActionListener(e -> btnAjouterAction(inv));
+        btnAjouter.addActionListener(e -> btnAjouterAction());
 
         btnAnnuler = new JButton("Annuler");
         btnAnnuler.setPreferredSize(dimBtn);
@@ -70,29 +74,35 @@ public class AddEntretien extends JDialog {
         dialog.setVisible(true);
 
     }
-    private void btnAjouterAction(Inventaire inv) {
-        LocalDate date;
-        String description;
+    private void btnAjouterAction() {
+        try{
+            description = txaDesc.getText();
+            date = dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-        // Vérification des entrées
-        if (dateChooser.getDate() == null) {
-            Utils.sendErrorMessage(dialog, "Date invalid!");
-            return;
+            // Vérifier si le nom est vide
+            if (description.isBlank()) throw new IllegalArgumentException();
+
+            validEntry = true;
+            dialog.dispose();
+        } catch(IllegalArgumentException | NullPointerException e){
+            Utils.sendErrorMessage(dialog, "Erreur de donnée!");
         }
+    }
 
-        if (txaDesc.getText().isBlank()) {
-            Utils.sendErrorMessage(dialog, "Description invalid!");
-            return;
-        }
+    public boolean hasValidEntry() {
+        return validEntry;
+    }
 
-        date = dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        description = txaDesc.getText();
+    public String getDescription() {
+        return description;
+    }
 
-        inv.addEntretien(date, description);
-        dialog.dispose();
+    public LocalDate getDate() {
+        return date;
     }
 
     private void btnAnnulerAction() {
+        dialog.dispose();
     }
 
 }

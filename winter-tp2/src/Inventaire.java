@@ -51,27 +51,12 @@ public class Inventaire implements Serializable {
         };
     }
 
-    public void setNom(String nom) {
+    public void modify(String nom, String description, String categorie, LocalDate date, String nbSerie, double prix) {
         this.nom = nom;
-    }
-
-    public void setDescription(String description) {
         this.description = description;
-    }
-
-    public void setCategorie(String categorie) {
         this.categorie = categorie;
-    }
-
-    public void setNbSerie(String nbSerie) {
-        this.nbSerie = nbSerie;
-    }
-
-    public void setDate(LocalDate date) {
         this.date = date;
-    }
-
-    public void setPrix(double prix) {
+        this.nbSerie = nbSerie;
         this.prix = prix;
     }
 

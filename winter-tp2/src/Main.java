@@ -28,8 +28,6 @@ public class Main extends JFrame {
     JButton btnDelEnt;
     JButton btnQuit;
 
-    JFileChooser fc;
-
     JPanel panNorth;
     JPanel panWest;
     JPanel panEast;
@@ -116,7 +114,7 @@ public class Main extends JFrame {
         miOpen.addActionListener(e -> {
             try {
                 miOpenAction();
-            } catch (IOException | ClassNotFoundException ioException) {
+            } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
@@ -322,180 +320,124 @@ public class Main extends JFrame {
 
     private void miQuitAction() throws IOException {
         int quitConfirm = JOptionPane.showConfirmDialog(frame, "Voulez-vous quitter?", "Confirmation de fermeture", JOptionPane.YES_NO_OPTION);
-        if (quitConfirm == JOptionPane.YES_OPTION) {
-            if (isLoaded) {
-                int rep = saveConfirm();
-                if (rep == JOptionPane.YES_OPTION) {
-                    miSaveAction();
-                    isLoaded = false;
-                } else if (rep == JOptionPane.CANCEL_OPTION) {
-                    return;
-                }
-            }
-            System.exit(0);
-        }
+        if (quitConfirm == JOptionPane.NO_OPTION) return;
+        if (fileAlreadyLoadedIn()) return;
+
+        System.exit(0);
     }
 
     // --- Bar de Menu: Fichier --- //
 
-    private void miOpenAction() throws IOException, ClassNotFoundException {
-        if (isLoaded) {
-            int rep = saveConfirm();
-            if (rep == JOptionPane.YES_OPTION) {
-                miSaveAction();
-            } else if (rep == JOptionPane.CANCEL_OPTION) {
-                return;
-            }
-        }
+    private void miOpenAction() throws IOException {
+        if (fileAlreadyLoadedIn()) return;
 
-        fc = new JFileChooser();
-
-        fc.setDialogTitle("Ouverture de fichier");
+        JFileChooser fc = new JFileChooser();
         FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
+
+        fc.setDialogTitle("Open inventaire");
         fc.setFileFilter(fcFilter);
 
         int rep = fc.showOpenDialog(frame);
-        if (rep == JFileChooser.APPROVE_OPTION) {
-            File fichier = fc.getSelectedFile();
-            filePath = fichier.getPath();
-            try {
-                ObjectInputStream input = new ObjectInputStream(new FileInputStream(filePath));
-                ListeInventaire = (ArrayList<Inventaire>) input.readObject();
-                input.close();
-            } catch (FileNotFoundException ignored) {
-            }
+        if (rep != JFileChooser.APPROVE_OPTION) return;
 
-            resetFrame();
+        File fichier = fc.getSelectedFile();
+        String fileName = fichier.getName();
+        filePath = fichier.getPath();
 
-            isLoaded = true;
-            frame.setTitle(fichier.getName() + " " + title);
+        try {
+            ObjectInputStream input = new ObjectInputStream(new FileInputStream(filePath));
+            ListeInventaire = (ArrayList<Inventaire>) input.readObject();
+            input.close();
+        } catch (FileNotFoundException ignored) {
+        } catch (ClassNotFoundException | EOFException | StreamCorruptedException e) {
+            Utils.sendErrorMessage(frame, "Fichier incompatible!");
+            return;
         }
+
+        openedInventory(fileName);
     }
 
     private void miNewAction() throws IOException {
-        if (isLoaded) {
-            int rep = saveConfirm();
-            if (rep == JOptionPane.YES_OPTION) {
-                miSaveAction();
-                isLoaded = false;
-                miCloseAction();
-            } else if (rep == JOptionPane.CANCEL_OPTION) {
-                return;
-            }
-        }
+        if (fileAlreadyLoadedIn()) return;
 
-        fc = new JFileChooser();
+        JFileChooser fc = new JFileChooser();
+        FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
 
         fc.setDialogTitle("Nouveau inventaire");
-        FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
         fc.setFileFilter(fcFilter);
 
         int rep = fc.showSaveDialog(frame);
-        if (rep == JFileChooser.APPROVE_OPTION) {
-            File fichier = fc.getSelectedFile();
-            String fileName = fichier.getName();
-            filePath = fichier.getPath();
+        if (rep != JFileChooser.APPROVE_OPTION) return;
 
-            if (!filePath.endsWith("dat"))
-                filePath = filePath.concat(".dat");
+        File fichier = fc.getSelectedFile();
+        String fileName = fichier.getName();
+        filePath = fichier.getPath();
 
-            if (!fileName.endsWith("dat"))
-                fileName = fileName.concat(".dat");
+        if (!filePath.endsWith("dat")) filePath = filePath.concat(".dat");
+        if (!fileName.endsWith("dat")) fileName = fileName.concat(".dat");
 
-            writeFileObject(filePath);
+        saveData();
+        openedInventory(fileName);
+    }
 
-            isLoaded = true;
-            frame.setTitle(fileName + " " + title);
-        }
+    private void openedInventory(String fileName) {
+        isLoaded = true;
+        frame.setTitle(fileName + " " + title);
+        refreshFrame();
     }
 
     private void miCloseAction() throws IOException {
-        if (isLoaded) {
-            int rep = saveConfirm();
-            if (rep == JOptionPane.YES_OPTION) {
-                miSaveAction();
-                isLoaded = false;
-            } else if (rep == JOptionPane.CANCEL_OPTION) {
-                return;
-            }
-        }
+        if (fileAlreadyLoadedIn()) return;
 
         ListeInventaire.clear();
-        resetFrame();
         isLoaded = false;
-
         frame.setTitle(title);
+        refreshFrame();
     }
 
     private void miSaveAction() throws IOException {
         if (!isLoaded) return;
-        writeFileObject(filePath);
+        saveData();
     }
-
 
     private void miSaveAsAction() throws IOException {
         if (!isLoaded) return;
-        fc = new JFileChooser();
+        JFileChooser fc = new JFileChooser();
+        FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
 
         fc.setDialogTitle("Enregistrement inventaire");
-        FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
         fc.setFileFilter(fcFilter);
 
         int rep = fc.showSaveDialog(frame);
-        if (rep == JFileChooser.APPROVE_OPTION) {
-            File fichier = fc.getSelectedFile();
-            String fileName = fichier.getName();
-            filePath = fichier.getPath();
+        if (rep != JFileChooser.APPROVE_OPTION) return;
 
-            if (!filePath.endsWith("dat"))
-                filePath = filePath.concat(".dat");
+        File fichier = fc.getSelectedFile();
+        String fileName = fichier.getName();
+        filePath = fichier.getPath();
 
-            if (!fileName.endsWith("dat"))
-                fileName = fileName.concat(".dat");
+        if (!filePath.endsWith("dat")) filePath = filePath.concat(".dat");
+        if (!fileName.endsWith("dat")) fileName = fileName.concat(".dat");
 
-            writeFileObject(filePath);
-            frame.setTitle(fileName + " " + title);
-        }
+        saveData();
+        openedInventory(fileName);
     }
 
     private void miExportAction() throws IOException {
         if (!isLoaded) return;
+        JFileChooser fc = new JFileChooser();
+        FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.txt", "txt");
 
-        fc = new JFileChooser();
-
-        fc.setDialogTitle("Enregistrement inventaire");
-        FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
+        fc.setDialogTitle("Exporter l'inventaire");
         fc.setFileFilter(fcFilter);
 
         int rep = fc.showSaveDialog(frame);
-        if (rep == JFileChooser.APPROVE_OPTION) {
-            File fichier = fc.getSelectedFile();
-            String output = fichier.getPath();
+        if (rep != JFileChooser.APPROVE_OPTION) return;
 
-            if (!output.endsWith("txt"))
-                output = output.concat(".txt");
+        String output = fc.getSelectedFile().getPath();
+        if (!output.endsWith("txt")) output = output.concat(".txt");
 
-            writeExport(output);
-        }
+        writeExport(output);
     }
-
-    private void writeFileObject(String fileName) throws IOException {
-        ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(fileName));
-        output.writeObject(ListeInventaire);
-        output.close();
-    }
-
-    private void writeExport(String fileName) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false));
-
-        for (Inventaire inv : ListeInventaire) {
-            writer.write(inv.toString());
-            writer.newLine();
-        }
-
-        writer.close();
-    }
-
 
     // --- Action Listeners --- //
 
@@ -517,22 +459,25 @@ public class Main extends JFrame {
     private void btnAddInvAction() {
         if (!isLoaded) return;
 
-        int currentSize = ListeInventaire.size();
+        AddInventaire newInv = new AddInventaire();
+        if (!newInv.hasValidEntry()) return;
 
-        new AddInventaire(ListeInventaire);
-        if (currentSize != ListeInventaire.size()) {
-            updateInventaire();
-            tabInventaire.setRowSelectionInterval(mdlInventaire.getRowCount() - 1, mdlInventaire.getRowCount() - 1);
-            tabInventaireSelectionChange();
-        }
+        ListeInventaire.add(new Inventaire(newInv.getNom(), newInv.getDescription(), newInv.getCategorie(), newInv.getDate(), newInv.getNbSerie(), newInv.getPrix()));
+        updateInventaire();
+
+        tabInventaire.setRowSelectionInterval(mdlInventaire.getRowCount() - 1, mdlInventaire.getRowCount() - 1);
+        tabInventaireSelectionChange();
     }
 
     private void modifyInventaire() {
         Inventaire inv = ListeInventaire.get(tabInventaire.getSelectedRow());
-        int row = ListeInventaire.indexOf(inv);
+        ModifInventaire invModif = new ModifInventaire(inv);
+        if (!invModif.hasValidEntry()) return;
 
-        new ModifInventaire(inv);
+        inv.modify(invModif.getNom(), invModif.getDescription(), invModif.getCategorie(), invModif.getDate(), invModif.getNbSerie(), invModif.getPrix());
         updateInventaire();
+
+        int row = ListeInventaire.indexOf(inv);
         tabInventaire.setRowSelectionInterval(row, row);
         tabInventaireSelectionChange();
     }
@@ -544,8 +489,9 @@ public class Main extends JFrame {
         if (row == -1) return;
 
         ListeInventaire.remove(row);
-        tabInventaireSelectionChange();
         updateInventaire();
+
+        tabInventaireSelectionChange();
     }
 
     // --- Entretien --- //
@@ -557,7 +503,10 @@ public class Main extends JFrame {
 
         Inventaire inv = ListeInventaire.get(row);
 
-        new AddEntretien(inv);
+        AddEntretien newEnt = new AddEntretien();
+        if (!newEnt.hasValidEntry()) return;
+
+        inv.addEntretien(newEnt.getDate(), newEnt.getDescription());
         updateEntretien(inv);
     }
 
@@ -590,12 +539,36 @@ public class Main extends JFrame {
         inv.getEntretiens().forEach((date, desc) -> mdlEntretien.addRow(new Object[]{date, desc}));
     }
 
-    private int saveConfirm() {
-        return JOptionPane.showConfirmDialog(frame, "Voulez-vous sauvegarder?", "Confirmation de sauvegarde", JOptionPane.YES_NO_CANCEL_OPTION);
-    }
-
-    private void resetFrame() {
+    private void refreshFrame() {
         updateInventaire();
         mdlEntretien.setRowCount(0);
+    }
+
+    private void saveData() throws IOException {
+        ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(filePath));
+        output.writeObject(ListeInventaire);
+        output.close();
+    }
+
+    private void writeExport(String fileName) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false));
+
+        for (Inventaire inv : ListeInventaire) {
+            writer.write(inv.toString());
+            writer.newLine();
+        }
+
+        writer.close();
+    }
+
+    private boolean fileAlreadyLoadedIn() throws IOException {
+        if (!isLoaded) return false;
+
+        int rep = JOptionPane.showConfirmDialog(frame, "Voulez-vous sauvegarder?", "Confirmation de sauvegarde", JOptionPane.YES_NO_CANCEL_OPTION);
+        if (rep == JOptionPane.CANCEL_OPTION) return true;
+        if (rep == JOptionPane.YES_OPTION) saveData();
+
+        isLoaded = false;
+        return false;
     }
 }

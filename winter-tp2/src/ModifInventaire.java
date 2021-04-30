@@ -3,11 +3,20 @@ import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Objects;
 
 public class ModifInventaire extends JDialog {
+    private boolean validEntry = false;
+    private String nom;
+    private String nbSerie;
+    private String categorie;
+    private double prix;
+    private String description;
+    private LocalDate date;
+
     JDialog dialog;
     JLabel labNom;
     JTextField txfNom;
@@ -21,7 +30,7 @@ public class ModifInventaire extends JDialog {
     JLabel labDesc;
     JTextArea txaDesc;
     JDateChooser dateChooser;
-    JButton btnAjouter;
+    JButton btnModifier;
     JButton btnAnnuler;
 
     JPanel panBas;
@@ -35,7 +44,7 @@ public class ModifInventaire extends JDialog {
     Dimension dimBas = new Dimension(400, 50);
 
     public ModifInventaire(Inventaire inv) {
-        dialog = new JDialog((JDialog) null, "Modification inventaire", true);
+        dialog = new JDialog((JDialog) null, "Ajout Inventaire", true);
         dialog.setSize(400, 425);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(null);
@@ -85,15 +94,15 @@ public class ModifInventaire extends JDialog {
         txaDesc.setPreferredSize(dimTxa);
         txaDesc.setBorder(Bordure);
 
-        btnAjouter = new JButton("Modifier");
-        btnAjouter.setPreferredSize(dimBtn);
-        btnAjouter.addActionListener(e -> btnAjouterAction(inv));
+        btnModifier = new JButton("Ajouter");
+        btnModifier.setPreferredSize(dimBtn);
+        btnModifier.addActionListener(e -> btnModifierAction());
 
         btnAnnuler = new JButton("Annuler");
         btnAnnuler.setPreferredSize(dimBtn);
         btnAnnuler.addActionListener(e -> btnAnnulerAction());
 
-        panBas.add(btnAjouter);
+        panBas.add(btnModifier);
         panBas.add(btnAnnuler);
 
         dialog.add(labNom);
@@ -115,41 +124,54 @@ public class ModifInventaire extends JDialog {
 
     }
 
-    private void btnAjouterAction(Inventaire inv) {
-        String[] arr = new String[]{
-                txfNom.getText(),
-                txfSerie.getText(),
-                Objects.requireNonNull(CmbCat.getSelectedItem()).toString(),
-                txfPrix.getText(),
-                txaDesc.getText()
-        };
+    private void btnModifierAction() {
+        try{
+            nom = txfNom.getText();
+            nbSerie = txfSerie.getText();
+            categorie = Objects.requireNonNull(CmbCat.getSelectedItem()).toString();
+            prix = Double.parseDouble(txfPrix.getText());
+            description = txaDesc.getText();
+            date = dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-        // Vérification des entrées
-        if (arr[0].isBlank()) {
-            Utils.sendErrorMessage(dialog, "Nom invalid!");
-            return;
+            // Vérifier si le nom est vide
+            if (nom.isBlank()) throw new IllegalArgumentException();
+
+            validEntry = true;
+            dialog.dispose();
+        } catch(IllegalArgumentException | NullPointerException e){
+            Utils.sendErrorMessage(dialog, "Erreur de donnée!");
         }
-
-        if (Utils.isNotDouble(arr[3])) {
-            Utils.sendErrorMessage(dialog, "Prix invalid!");
-            return;
-        }
-
-        if (dateChooser.getDate() == null) {
-            Utils.sendErrorMessage(dialog, "Date invalid!");
-            return;
-        }
-
-        inv.setNom(arr[0]);
-        inv.setNbSerie(arr[1]);
-        inv.setCategorie(arr[2]);
-        inv.setPrix(Double.parseDouble(arr[3]));
-        inv.setDescription(arr[4]);
-        inv.setDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-        dialog.dispose();
     }
 
     private void btnAnnulerAction() {
         dialog.dispose();
+    }
+
+    public boolean hasValidEntry() {
+        return validEntry;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public String getNbSerie() {
+        return nbSerie;
+    }
+
+    public String getCategorie() {
+        return categorie;
+    }
+
+    public double getPrix() {
+        return prix;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public LocalDate getDate() {
+        return date;
     }
 }
