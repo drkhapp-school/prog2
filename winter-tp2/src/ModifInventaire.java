@@ -23,7 +23,7 @@ public class ModifInventaire extends JDialog {
     JLabel labSerie;
     JTextField txfSerie;
     JLabel labCat;
-    JComboBox<String> CmbCat;
+    JComboBox<String> cmbCat;
     JLabel labPrix;
     JTextField txfPrix;
     JLabel labDate;
@@ -35,16 +35,16 @@ public class ModifInventaire extends JDialog {
 
     JPanel panBas;
 
-    String[] categories = {"Jeux", "Caméra", "Accessoires"};
+    String[] categories = Constant.CATEGORY_NAMES;
 
-    Dimension dimTxf = new Dimension(200, 30);
-    Dimension dimBtn = new Dimension(100, 30);
-    Dimension dimLab = new Dimension(125, 30);
-    Dimension dimTxa = new Dimension(200, 150);
+    Dimension dimTxf = Constant.DIMENSION_TEXT_FIELD;
+    Dimension dimBtn = Constant.DIMENSION_BUTTON;
+    Dimension dimLab = Constant.DIMENSION_TEXT_LABEL;
+    Dimension dimTxa = Constant.DIMENSION_TEXT_AREA;
     Dimension dimBas = new Dimension(400, 50);
 
     public ModifInventaire(Inventaire inv) {
-        dialog = new JDialog((JDialog) null, "Ajout Inventaire", true);
+        dialog = new JDialog((JDialog) null, "Modif Inventaire", true);
         dialog.setSize(400, 425);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(null);
@@ -71,9 +71,9 @@ public class ModifInventaire extends JDialog {
         labCat = new JLabel("Catégorie:");
         labCat.setPreferredSize(dimLab);
 
-        CmbCat = new JComboBox<>(categories);
-        CmbCat.setSelectedItem(inv.getCategorie());
-        CmbCat.setPreferredSize(dimTxf);
+        cmbCat = new JComboBox<>(categories);
+        cmbCat.setSelectedItem(inv.getCategorie());
+        cmbCat.setPreferredSize(dimTxf);
 
         labPrix = new JLabel("*Prix:");
         labPrix.setPreferredSize(dimLab);
@@ -110,7 +110,7 @@ public class ModifInventaire extends JDialog {
         dialog.add(labSerie);
         dialog.add(txfSerie);
         dialog.add(labCat);
-        dialog.add(CmbCat);
+        dialog.add(cmbCat);
         dialog.add(labPrix);
         dialog.add(txfPrix);
         dialog.add(labDate);
@@ -128,13 +128,13 @@ public class ModifInventaire extends JDialog {
         try{
             nom = txfNom.getText();
             nbSerie = txfSerie.getText();
-            categorie = Objects.requireNonNull(CmbCat.getSelectedItem()).toString();
+            categorie = Objects.requireNonNull(cmbCat.getSelectedItem()).toString();
             prix = Double.parseDouble(txfPrix.getText());
             description = txaDesc.getText();
             date = dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-            // Vérifier si le nom est vide
-            if (nom.isBlank()) throw new IllegalArgumentException();
+            // Vérification de donnée
+            if (Utils.invalidData(nom, prix)) throw new IllegalArgumentException();
 
             validEntry = true;
             dialog.dispose();

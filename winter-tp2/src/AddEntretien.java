@@ -22,9 +22,9 @@ public class AddEntretien extends JDialog {
 
     JPanel panBas;
 
-    Dimension dimBtn = new Dimension(100, 30);
-    Dimension dimLab = new Dimension(125, 30);
-    Dimension dimTxa = new Dimension(200, 150);
+    Dimension dimBtn = Constant.DIMENSION_BUTTON;
+    Dimension dimLab = Constant.DIMENSION_TEXT_LABEL;
+    Dimension dimTxa = Constant.DIMENSION_TEXT_AREA;
     Dimension dimBas = new Dimension(400, 50);
 
     public AddEntretien() {
@@ -79,8 +79,8 @@ public class AddEntretien extends JDialog {
             description = txaDesc.getText();
             date = dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-            // Vérifier si le nom est vide
-            if (description.isBlank()) throw new IllegalArgumentException();
+            // Vérification de donnée
+            if (Utils.invalidData(description)) throw new IllegalArgumentException();
 
             validEntry = true;
             dialog.dispose();

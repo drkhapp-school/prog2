@@ -10,41 +10,31 @@ import java.util.ArrayList;
 import java.util.regex.PatternSyntaxException;
 
 public class Main extends JFrame {
-    ArrayList<Inventaire> ListeInventaire = new ArrayList<>();
-    boolean isLoaded = false;
-
-    DefaultTableModel mdlInventaire;
-    DefaultTableModel mdlEntretien;
-
-    TableRowSorter<DefaultTableModel> sorter;
+    private ArrayList<Inventaire> ListeInventaire = new ArrayList<>(); // Liste des inventaires
+    private File fichier; // Le fichier en cours
+    private boolean isLoaded = false; // Si un fichier est en cours
+    private final String title = "Jean-Philippe Miguel-Gagnon"; // Titre de l'application
+    private final String[] colInventaire = {"Nom", "Catégorie", "Prix", "Date achat", "Description"}; // Nom des colonnes pour tabInventaire
+    private final String[] colEntretien = {"Date", "Description"}; // Nom des colonnes pour tabEntretien
 
     JFrame frame;
+    JPanel panNorth, panWest, panEast, panSouth;
+    
     JMenuBar menuBar;
     JMenu menuTP2, menuFichier;
     JMenuItem miAbout, miQuit, miNew, miOpen, miClose, miSave, miSaveAs, miExport;
+
+    JTable tabInventaire, tabEntretien;
+    DefaultTableModel mdlInventaire, mdlEntretien;
+    TableRowSorter<DefaultTableModel> sorter;
+    
     JTextField txfFilter;
     JButton btnFilter;
-    JTable tabInventaire;
-    JTable tabEntretien;
-    JButton btnAddInv;
-    JButton btnDelInv;
-    JButton btnAddEnt;
-    JButton btnDelEnt;
-    JButton btnQuit;
-
-    JPanel panNorth;
-    JPanel panWest;
-    JPanel panEast;
-    JPanel panSouth;
-
-    String[] colInventaire = {"Nom", "Catégorie", "Prix", "Date achat", "Description"};
-    String[] colEntretien = {"Date", "Description"};
-
-    File fichier;
-    String title = "Jean-Philippe Miguel-Gagnon";
-
-    Dimension dimTxf = new Dimension(150, 30);
-    Dimension dimBtn = new Dimension(100, 25);
+    
+    JButton btnAddInv, btnDelInv, btnAddEnt, btnDelEnt, btnQuit;
+    
+    Dimension dimTxf = Constant.DIMENSION_TEXT_FIELD;
+    Dimension dimBtn = Constant.DIMENSION_BUTTON;
     Dimension dimNorth = new Dimension(1300, 40);
     Dimension dimEast = new Dimension(500, 700);
     Dimension dimWest = new Dimension(800, 700);
@@ -63,7 +53,7 @@ public class Main extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 try {
-                    miQuitAction();
+                    exitApp();
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -88,14 +78,12 @@ public class Main extends JFrame {
         miAbout.setAccelerator(KeyStroke.getKeyStroke('A', InputEvent.CTRL_DOWN_MASK));
 
         miQuit = new JMenuItem("Quitter");
+        miQuit.setAccelerator(KeyStroke.getKeyStroke('Q', InputEvent.CTRL_DOWN_MASK));
         miQuit.addActionListener(e -> {
             try {
                 miQuitAction();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            } catch (IOException ignored) { }
         });
-        miQuit.setAccelerator(KeyStroke.getKeyStroke('Q', InputEvent.CTRL_DOWN_MASK));
 
         menuBar.add(menuTP2);
         menuTP2.add(miAbout);
@@ -104,65 +92,54 @@ public class Main extends JFrame {
 
         // Menu "Fichier"
         menuFichier = new JMenu("Fichier");
+
         miNew = new JMenuItem("Nouveau...");
+        miNew.setAccelerator(KeyStroke.getKeyStroke('N', InputEvent.CTRL_DOWN_MASK));
         miNew.addActionListener(e -> {
             try {
                 miNewAction();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            } catch (IOException ignored) { }
         });
-        miNew.setAccelerator(KeyStroke.getKeyStroke('N', InputEvent.CTRL_DOWN_MASK));
 
         miOpen = new JMenuItem("Ouvrir...");
+        miOpen.setAccelerator(KeyStroke.getKeyStroke('O', InputEvent.CTRL_DOWN_MASK));
         miOpen.addActionListener(e -> {
             try {
                 miOpenAction();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            } catch (IOException ignored) { }
         });
-        miOpen.setAccelerator(KeyStroke.getKeyStroke('O', InputEvent.CTRL_DOWN_MASK));
 
         miClose = new JMenuItem("Fermer");
+        miClose.setAccelerator(KeyStroke.getKeyStroke('F', InputEvent.CTRL_DOWN_MASK));
         miClose.addActionListener(e -> {
             try {
                 miCloseAction();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            } catch (IOException ignored) { }
         });
-        miClose.setAccelerator(KeyStroke.getKeyStroke('F', InputEvent.CTRL_DOWN_MASK));
 
         miSave = new JMenuItem("Enregistrer");
+        miSave.setAccelerator(KeyStroke.getKeyStroke('S', InputEvent.CTRL_DOWN_MASK));
         miSave.addActionListener(e -> {
             try {
                 miSaveAction();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            } catch (IOException ignored) { }
         });
-        miSave.setAccelerator(KeyStroke.getKeyStroke('S', InputEvent.CTRL_DOWN_MASK));
 
         miSaveAs = new JMenuItem("Enregistrer sous...");
+        miSaveAs.setAccelerator(KeyStroke.getKeyStroke('S', InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
         miSaveAs.addActionListener(e -> {
             try {
                 miSaveAsAction();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            } catch (IOException ignored) { }
         });
-        miSaveAs.setAccelerator(KeyStroke.getKeyStroke('S', InputEvent.CTRL_DOWN_MASK + InputEvent.SHIFT_DOWN_MASK));
 
         miExport = new JMenuItem("Exporter...");
+        miExport.setAccelerator(KeyStroke.getKeyStroke('E', InputEvent.CTRL_DOWN_MASK));
         miExport.addActionListener(e -> {
             try {
                 miExportAction();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            } catch (IOException ignored) { }
         });
-        miExport.setAccelerator(KeyStroke.getKeyStroke('E', InputEvent.CTRL_DOWN_MASK));
 
         menuBar.add(menuFichier);
         menuFichier.add(miNew);
@@ -319,9 +296,7 @@ public class Main extends JFrame {
         btnQuit.addActionListener(e -> {
             try {
                 btnQuitAction();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            } catch (IOException ignored) { }
         });
 
         panSouth.add(btnQuit);
@@ -355,16 +330,7 @@ public class Main extends JFrame {
 
         fichier = fc.getSelectedFile();
 
-        try {
-            ObjectInputStream input = new ObjectInputStream(new FileInputStream(fichier.getPath()));
-            ListeInventaire = (ArrayList<Inventaire>) input.readObject();
-            input.close();
-        } catch (FileNotFoundException ignored) {
-        } catch (ClassNotFoundException | EOFException | StreamCorruptedException e) {
-            Utils.sendErrorMessage(frame, "Fichier incompatible!");
-            return;
-        }
-
+        readData();
         openedInventory();
     }
 
@@ -387,17 +353,28 @@ public class Main extends JFrame {
     }
 
     private void miCloseAction() throws IOException {
+        if (isLoaded) {
+            Utils.sendErrorMessage(frame, "fuck off");
+            return;
+        }
+
         if (fileAlreadyLoadedIn()) return;
         resetApp();
     }
 
     private void miSaveAction() throws IOException {
-        if (!isLoaded) return;
+                if (!isLoaded) {
+            Utils.sendErrorMessage(frame, "fuck off");
+            return;
+        }
         saveData();
     }
 
     private void miSaveAsAction() throws IOException {
-        if (!isLoaded) return;
+                if (!isLoaded) {
+            Utils.sendErrorMessage(frame, "fuck off");
+            return;
+        }
         JFileChooser fc = new JFileChooser();
         FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
 
@@ -414,7 +391,11 @@ public class Main extends JFrame {
     }
 
     private void miExportAction() throws IOException {
-        if (!isLoaded) return;
+        if (!isLoaded) {
+            Utils.sendErrorMessage(frame, "fuck off");
+            return;
+        }
+
         JFileChooser fc = new JFileChooser();
         FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.txt", "txt");
 
@@ -465,7 +446,10 @@ public class Main extends JFrame {
 
     // --- Inventaire --- //
     private void btnAddInvAction() {
-        if (!isLoaded) return;
+        if (!isLoaded) {
+            Utils.sendErrorMessage(frame, "fuck off");
+            return;
+        }
 
         AddInventaire newInv = new AddInventaire();
         if (!newInv.hasValidEntry()) return;
@@ -495,7 +479,10 @@ public class Main extends JFrame {
     }
 
     private void btnDelInvAction() {
-        if (!isLoaded) return;
+        if (!isLoaded) {
+            Utils.sendErrorMessage(frame, "fuck off");
+            return;
+        }
 
         int row = tabInventaire.getSelectedRow();
         if (row == -1) return;
@@ -508,7 +495,10 @@ public class Main extends JFrame {
 
     // --- Entretien --- //
     private void btnAddEntAction() {
-        if (!isLoaded) return;
+        if (!isLoaded) {
+            Utils.sendErrorMessage(frame, "fuck off");
+            return;
+        }
 
         int row = tabInventaire.getSelectedRow();
         if (row == -1) return;
@@ -523,7 +513,10 @@ public class Main extends JFrame {
     }
 
     private void btnDelEntAction() {
-        if (!isLoaded) return;
+        if (!isLoaded) {
+            Utils.sendErrorMessage(frame, "fuck off");
+            return;
+        }
 
         int rowInv = tabInventaire.getSelectedRow();
         int rowEnt = tabEntretien.getSelectedRow();
@@ -542,7 +535,7 @@ public class Main extends JFrame {
     }
 
     private void openedInventory() {
-        String fileName = fichier.getPath();
+        String fileName = fichier.getName();
         if (!fileName.endsWith("dat")) fileName = fileName.concat(".dat");
 
         isLoaded = true;
@@ -557,6 +550,18 @@ public class Main extends JFrame {
         ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(filePath));
         output.writeObject(ListeInventaire);
         output.close();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void readData() throws IOException {
+        try {
+            ObjectInputStream input = new ObjectInputStream(new FileInputStream(fichier.getPath()));
+            ListeInventaire = (ArrayList<Inventaire>) input.readObject();
+            input.close();
+        } catch (FileNotFoundException ignored) {
+        } catch (ClassNotFoundException | InvalidClassException | EOFException | StreamCorruptedException e) {
+            Utils.sendErrorMessage(frame, "Fichier incompatible!");
+        }
     }
 
     private void saveExport(String fileName) throws IOException {
@@ -606,8 +611,8 @@ public class Main extends JFrame {
     private void exitApp() throws IOException {
         if (fileAlreadyLoadedIn()) return;
 
-        int quitConfirm = JOptionPane.showConfirmDialog(frame, "Voulez-vous quitter?", "Confirmation de fermeture", JOptionPane.YES_NO_OPTION);
-        if (quitConfirm == JOptionPane.NO_OPTION) return;
+        int quitConfirm = JOptionPane.showConfirmDialog(frame, "Voulez-vous quitter?", "Confirmation de fermeture", JOptionPane.YES_NO_CANCEL_OPTION);
+        if (quitConfirm != JOptionPane.YES_OPTION) return;
 
         System.exit(0);
     }
