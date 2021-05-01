@@ -1,11 +1,13 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.regex.PatternSyntaxException;
 
 public class Main extends JFrame {
     ArrayList<Inventaire> ListeInventaire = new ArrayList<>();
@@ -13,6 +15,8 @@ public class Main extends JFrame {
 
     DefaultTableModel mdlInventaire;
     DefaultTableModel mdlEntretien;
+
+    TableRowSorter<DefaultTableModel> sorter;
 
     JFrame frame;
     JMenuBar menuBar;
@@ -234,6 +238,15 @@ public class Main extends JFrame {
         // Tableau d'inventaire
         mdlInventaire = new DefaultTableModel(colInventaire, 0) {
             @Override
+            public Class<?> getColumnClass(int column) {
+                try {
+                    return getValueAt(0, column).getClass();
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    return super.getColumnClass(column);
+                }
+            }
+
+            @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
@@ -273,6 +286,10 @@ public class Main extends JFrame {
                 }
             }
         });
+
+        tabInventaire.setAutoCreateRowSorter(true);
+        sorter = new TableRowSorter<>(mdlInventaire);
+        tabInventaire.setRowSorter(sorter);
 
         JScrollPane scrollInv = new JScrollPane(tabInventaire);
         scrollInv.setPreferredSize(new Dimension(790, 600));
@@ -319,11 +336,7 @@ public class Main extends JFrame {
     }
 
     private void miQuitAction() throws IOException {
-        int quitConfirm = JOptionPane.showConfirmDialog(frame, "Voulez-vous quitter?", "Confirmation de fermeture", JOptionPane.YES_NO_OPTION);
-        if (quitConfirm == JOptionPane.NO_OPTION) return;
-        if (fileAlreadyLoadedIn()) return;
-
-        System.exit(0);
+        exitApp();
     }
 
     // --- Bar de Menu: Fichier --- //
@@ -388,11 +401,7 @@ public class Main extends JFrame {
 
     private void miCloseAction() throws IOException {
         if (fileAlreadyLoadedIn()) return;
-
-        ListeInventaire.clear();
-        isLoaded = false;
-        frame.setTitle(title);
-        refreshFrame();
+        resetApp();
     }
 
     private void miSaveAction() throws IOException {
@@ -443,16 +452,33 @@ public class Main extends JFrame {
 
     private void tabInventaireSelectionChange() {
         int row = tabInventaire.getSelectedRow();
-        if (row == -1) return;
+        if (row == -1) {
+            mdlEntretien.setRowCount(0);
+            return;
+        }
 
-        updateEntretien(ListeInventaire.get(row));
+        updateEntretien(ListeInventaire.get(tabInventaire.convertRowIndexToModel(row)));
     }
 
     private void btnFilterAction() {
+        String text = txfFilter.getText();
+        if (text.isBlank()) {
+            sorter.setRowFilter(null);
+            return;
+        }
+
+        try {
+            sorter.setRowFilter(RowFilter.regexFilter(text));
+            tabInventaire.getSelectionModel().clearSelection();
+        } catch (PatternSyntaxException e) {
+            Utils.sendErrorMessage(frame, "Erreur de filtre");
+        }
+
     }
 
     private void btnQuitAction() throws IOException {
-        miQuitAction();
+        if (fileAlreadyLoadedIn()) return;
+        exitApp();
     }
 
     // --- Inventaire --- //
@@ -462,10 +488,14 @@ public class Main extends JFrame {
         AddInventaire newInv = new AddInventaire();
         if (!newInv.hasValidEntry()) return;
 
-        ListeInventaire.add(new Inventaire(newInv.getNom(), newInv.getDescription(), newInv.getCategorie(), newInv.getDate(), newInv.getNbSerie(), newInv.getPrix()));
+        Inventaire inv = new Inventaire(newInv.getNom(), newInv.getDescription(), newInv.getCategorie(), newInv.getDate(), newInv.getNbSerie(), newInv.getPrix());
+
+        ListeInventaire.add(inv);
         updateInventaire();
 
-        tabInventaire.setRowSelectionInterval(mdlInventaire.getRowCount() - 1, mdlInventaire.getRowCount() - 1);
+        int row = tabInventaire.convertRowIndexToModel(ListeInventaire.indexOf(inv));
+
+        tabInventaire.setRowSelectionInterval(row, row);
         tabInventaireSelectionChange();
     }
 
@@ -488,7 +518,7 @@ public class Main extends JFrame {
         int row = tabInventaire.getSelectedRow();
         if (row == -1) return;
 
-        ListeInventaire.remove(row);
+        ListeInventaire.remove(tabInventaire.convertRowIndexToModel(row));
         updateInventaire();
 
         tabInventaireSelectionChange();
@@ -501,7 +531,7 @@ public class Main extends JFrame {
         int row = tabInventaire.getSelectedRow();
         if (row == -1) return;
 
-        Inventaire inv = ListeInventaire.get(row);
+        Inventaire inv = ListeInventaire.get(tabInventaire.convertRowIndexToModel(row));
 
         AddEntretien newEnt = new AddEntretien();
         if (!newEnt.hasValidEntry()) return;
@@ -517,7 +547,7 @@ public class Main extends JFrame {
         int rowEnt = tabEntretien.getSelectedRow();
         if (rowInv == -1 || rowEnt == -1) return;
 
-        Inventaire inv = ListeInventaire.get(rowInv);
+        Inventaire inv = ListeInventaire.get(tabInventaire.convertRowIndexToModel(rowInv));
         LocalDate key = (LocalDate) tabEntretien.getValueAt(rowEnt, 0);
 
         inv.delEntretien(key);
@@ -568,7 +598,23 @@ public class Main extends JFrame {
         if (rep == JOptionPane.CANCEL_OPTION) return true;
         if (rep == JOptionPane.YES_OPTION) saveData();
 
-        isLoaded = false;
+        resetApp();
         return false;
+    }
+
+    private void resetApp() {
+        isLoaded = false;
+        ListeInventaire.clear();
+        frame.setTitle(title);
+        refreshFrame();
+    }
+
+    private void exitApp() throws IOException {
+        if (fileAlreadyLoadedIn()) return;
+
+        int quitConfirm = JOptionPane.showConfirmDialog(frame, "Voulez-vous quitter?", "Confirmation de fermeture", JOptionPane.YES_NO_OPTION);
+        if (quitConfirm == JOptionPane.NO_OPTION) return;
+
+        System.exit(0);
     }
 }
