@@ -40,7 +40,7 @@ public class Main extends JFrame {
     String[] colInventaire = {"Nom", "Catégorie", "Prix", "Date achat", "Description"};
     String[] colEntretien = {"Date", "Description"};
 
-    String filePath;
+    File fichier;
     String title = "Jean-Philippe Miguel-Gagnon";
 
     Dimension dimTxf = new Dimension(150, 30);
@@ -353,12 +353,10 @@ public class Main extends JFrame {
         int rep = fc.showOpenDialog(frame);
         if (rep != JFileChooser.APPROVE_OPTION) return;
 
-        File fichier = fc.getSelectedFile();
-        String fileName = fichier.getName();
-        filePath = fichier.getPath();
+        fichier = fc.getSelectedFile();
 
         try {
-            ObjectInputStream input = new ObjectInputStream(new FileInputStream(filePath));
+            ObjectInputStream input = new ObjectInputStream(new FileInputStream(fichier.getPath()));
             ListeInventaire = (ArrayList<Inventaire>) input.readObject();
             input.close();
         } catch (FileNotFoundException ignored) {
@@ -367,7 +365,7 @@ public class Main extends JFrame {
             return;
         }
 
-        openedInventory(fileName);
+        openedInventory();
     }
 
     private void miNewAction() throws IOException {
@@ -382,21 +380,10 @@ public class Main extends JFrame {
         int rep = fc.showSaveDialog(frame);
         if (rep != JFileChooser.APPROVE_OPTION) return;
 
-        File fichier = fc.getSelectedFile();
-        String fileName = fichier.getName();
-        filePath = fichier.getPath();
-
-        if (!filePath.endsWith("dat")) filePath = filePath.concat(".dat");
-        if (!fileName.endsWith("dat")) fileName = fileName.concat(".dat");
+        fichier = fc.getSelectedFile();
 
         saveData();
-        openedInventory(fileName);
-    }
-
-    private void openedInventory(String fileName) {
-        isLoaded = true;
-        frame.setTitle(fileName + " " + title);
-        refreshFrame();
+        openedInventory();
     }
 
     private void miCloseAction() throws IOException {
@@ -420,15 +407,10 @@ public class Main extends JFrame {
         int rep = fc.showSaveDialog(frame);
         if (rep != JFileChooser.APPROVE_OPTION) return;
 
-        File fichier = fc.getSelectedFile();
-        String fileName = fichier.getName();
-        filePath = fichier.getPath();
-
-        if (!filePath.endsWith("dat")) filePath = filePath.concat(".dat");
-        if (!fileName.endsWith("dat")) fileName = fileName.concat(".dat");
+        fichier = fc.getSelectedFile();
 
         saveData();
-        openedInventory(fileName);
+        openedInventory();
     }
 
     private void miExportAction() throws IOException {
@@ -445,7 +427,7 @@ public class Main extends JFrame {
         String output = fc.getSelectedFile().getPath();
         if (!output.endsWith("txt")) output = output.concat(".txt");
 
-        writeExport(output);
+        saveExport(output);
     }
 
     // --- Action Listeners --- //
@@ -559,28 +541,25 @@ public class Main extends JFrame {
         new Main();
     }
 
-    private void updateInventaire() {
-        mdlInventaire.setRowCount(0);
-        for (Inventaire inventaire : ListeInventaire) mdlInventaire.addRow(inventaire.toObject());
-    }
+    private void openedInventory() {
+        String fileName = fichier.getPath();
+        if (!fileName.endsWith("dat")) fileName = fileName.concat(".dat");
 
-    private void updateEntretien(Inventaire inv) {
-        mdlEntretien.setRowCount(0);
-        inv.getEntretiens().forEach((date, desc) -> mdlEntretien.addRow(new Object[]{date, desc}));
-    }
-
-    private void refreshFrame() {
-        updateInventaire();
-        mdlEntretien.setRowCount(0);
+        isLoaded = true;
+        frame.setTitle(fileName + " " + title);
+        refreshApp();
     }
 
     private void saveData() throws IOException {
+        String filePath = fichier.getPath();
+        if (!filePath.endsWith("dat")) filePath = filePath.concat(".dat");
+
         ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(filePath));
         output.writeObject(ListeInventaire);
         output.close();
     }
 
-    private void writeExport(String fileName) throws IOException {
+    private void saveExport(String fileName) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false));
 
         for (Inventaire inv : ListeInventaire) {
@@ -602,11 +581,26 @@ public class Main extends JFrame {
         return false;
     }
 
+    private void updateInventaire() {
+        mdlInventaire.setRowCount(0);
+        for (Inventaire inventaire : ListeInventaire) mdlInventaire.addRow(inventaire.toObject());
+    }
+
+    private void updateEntretien(Inventaire inv) {
+        mdlEntretien.setRowCount(0);
+        inv.getEntretiens().forEach((date, desc) -> mdlEntretien.addRow(new Object[]{date, desc}));
+    }
+
+    private void refreshApp() {
+        updateInventaire();
+        mdlEntretien.setRowCount(0);
+    }
+
     private void resetApp() {
         isLoaded = false;
         ListeInventaire.clear();
         frame.setTitle(title);
-        refreshFrame();
+        refreshApp();
     }
 
     private void exitApp() throws IOException {
