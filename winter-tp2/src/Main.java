@@ -453,6 +453,7 @@ public class Main extends JFrame {
      * Ajout d'un nouvel inventaire dans la liste d'inventaire
      */
     private void btnAddInvAction() {
+        int row; // Ligne de l'inventaire ajoutée
         Inventaire inv; // Inventaire à ajouter
 
         // Aucun fichier en cours
@@ -462,13 +463,14 @@ public class Main extends JFrame {
         // L'inventaire retournée n'est pas valid
         if (!newInv.hasValidEntry()) return;
 
-        // Ajout de l'inventaire
         inv = new Inventaire(newInv.getNom(), newInv.getDescription(), newInv.getCategorie(), newInv.getDate(), newInv.getNbSerie(), newInv.getPrix());
         ListeInventaire.add(inv);
-
-        // Mis à jour des tableaux
         updateTabInv();
-        int row = ListeInventaire.indexOf(inv);
+
+        row = tabInventaire.convertRowIndexToView(ListeInventaire.indexOf(inv));
+        // Ligne pas dans le tableau (eg. il est filtrer)
+        if (row == -1) return;
+
         tabInventaire.setRowSelectionInterval(row, row);
         tabInventaireSelectionChange();
     }
@@ -477,17 +479,16 @@ public class Main extends JFrame {
      * Modifie un inventaire dans la liste d'inventaire
      */
     private void modifyInventaire() {
-        Inventaire inv = ListeInventaire.get(tabInventaire.getSelectedRow()); // Inventaire à modifier
+        int row = tabInventaire.convertRowIndexToModel(tabInventaire.getSelectedRow()); // Ligne de l'inventaire à modifier
+        Inventaire inv = ListeInventaire.get(row); // Inventaire à modifier
+
         ModifInventaire invModif = new ModifInventaire(inv);
         // La modification retournée n'est pas valide
         if (!invModif.hasValidEntry()) return;
 
-        // Modification de l'inventaire
         inv.modify(invModif.getNom(), invModif.getDescription(), invModif.getCategorie(), invModif.getDate(), invModif.getNbSerie(), invModif.getPrix());
 
-        // Mis à jour des tableaux
         updateTabInv();
-        int row = ListeInventaire.indexOf(inv);
         tabInventaire.setRowSelectionInterval(row, row);
         tabInventaireSelectionChange();
     }
@@ -533,7 +534,6 @@ public class Main extends JFrame {
         // L'entretien retourné est invalid
         if (!newEnt.hasValidEntry()) return;
 
-        // Ajout de l'inventaire
         inv.addEntretien(newEnt.getDate(), newEnt.getDescription());
         updateTabEnt(inv);
     }
