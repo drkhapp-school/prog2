@@ -75,7 +75,7 @@ public class Main extends JFrame {
         menuTP2 = new JMenu("TP2");
         miAbout = new JMenuItem("À propos");
         miAbout.addActionListener(e -> miAboutAction());
-        miAbout.setAccelerator(KeyStroke.getKeyStroke('A', InputEvent.CTRL_DOWN_MASK));
+        miAbout.setAccelerator(KeyStroke.getKeyStroke('A', InputEvent.ALT_DOWN_MASK));
 
         miQuit = new JMenuItem("Quitter");
         miQuit.setAccelerator(KeyStroke.getKeyStroke('Q', InputEvent.CTRL_DOWN_MASK));
@@ -317,7 +317,7 @@ public class Main extends JFrame {
     // --- Bar de Menu: Fichier --- //
 
     private void miOpenAction() throws IOException {
-        if (fileAlreadyLoadedIn()) return;
+        if (fileAlreadyLoaded()) return;
 
         JFileChooser fc = new JFileChooser();
         FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
@@ -335,7 +335,7 @@ public class Main extends JFrame {
     }
 
     private void miNewAction() throws IOException {
-        if (fileAlreadyLoadedIn()) return;
+        if (fileAlreadyLoaded()) return;
 
         JFileChooser fc = new JFileChooser();
         FileNameExtensionFilter fcFilter = new FileNameExtensionFilter("*.dat", "dat");
@@ -353,26 +353,26 @@ public class Main extends JFrame {
     }
 
     private void miCloseAction() throws IOException {
-        if (isLoaded) {
-            Utils.sendErrorMessage(frame, "fuck off");
+        if (!isLoaded) {
+            Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
             return;
         }
 
-        if (fileAlreadyLoadedIn()) return;
-        resetApp();
+        if (fileAlreadyLoaded()) return;
+        closeFile();
     }
 
     private void miSaveAction() throws IOException {
-                if (!isLoaded) {
-            Utils.sendErrorMessage(frame, "fuck off");
+        if (!isLoaded) {
+            Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
             return;
         }
         saveData();
     }
 
     private void miSaveAsAction() throws IOException {
-                if (!isLoaded) {
-            Utils.sendErrorMessage(frame, "fuck off");
+        if (!isLoaded) {
+            Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
             return;
         }
         JFileChooser fc = new JFileChooser();
@@ -392,7 +392,7 @@ public class Main extends JFrame {
 
     private void miExportAction() throws IOException {
         if (!isLoaded) {
-            Utils.sendErrorMessage(frame, "fuck off");
+            Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
             return;
         }
 
@@ -420,7 +420,7 @@ public class Main extends JFrame {
             return;
         }
 
-        updateEntretien(ListeInventaire.get(tabInventaire.convertRowIndexToModel(row)));
+        updateTabEnt(ListeInventaire.get(tabInventaire.convertRowIndexToModel(row)));
     }
 
     private void btnFilterAction() {
@@ -440,14 +440,13 @@ public class Main extends JFrame {
     }
 
     private void btnQuitAction() throws IOException {
-        if (fileAlreadyLoadedIn()) return;
         exitApp();
     }
 
     // --- Inventaire --- //
     private void btnAddInvAction() {
         if (!isLoaded) {
-            Utils.sendErrorMessage(frame, "fuck off");
+            Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
             return;
         }
 
@@ -457,9 +456,11 @@ public class Main extends JFrame {
         Inventaire inv = new Inventaire(newInv.getNom(), newInv.getDescription(), newInv.getCategorie(), newInv.getDate(), newInv.getNbSerie(), newInv.getPrix());
 
         ListeInventaire.add(inv);
-        updateInventaire();
+        updateTabInv();
 
-        int row = tabInventaire.convertRowIndexToModel(ListeInventaire.indexOf(inv));
+        int row = tabInventaire.getSelectedRow();
+        if (row == -1)
+
 
         tabInventaire.setRowSelectionInterval(row, row);
         tabInventaireSelectionChange();
@@ -471,7 +472,7 @@ public class Main extends JFrame {
         if (!invModif.hasValidEntry()) return;
 
         inv.modify(invModif.getNom(), invModif.getDescription(), invModif.getCategorie(), invModif.getDate(), invModif.getNbSerie(), invModif.getPrix());
-        updateInventaire();
+        updateTabInv();
 
         int row = ListeInventaire.indexOf(inv);
         tabInventaire.setRowSelectionInterval(row, row);
@@ -480,7 +481,7 @@ public class Main extends JFrame {
 
     private void btnDelInvAction() {
         if (!isLoaded) {
-            Utils.sendErrorMessage(frame, "fuck off");
+            Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
             return;
         }
 
@@ -488,7 +489,7 @@ public class Main extends JFrame {
         if (row == -1) return;
 
         ListeInventaire.remove(tabInventaire.convertRowIndexToModel(row));
-        updateInventaire();
+        updateTabInv();
 
         tabInventaireSelectionChange();
     }
@@ -496,7 +497,7 @@ public class Main extends JFrame {
     // --- Entretien --- //
     private void btnAddEntAction() {
         if (!isLoaded) {
-            Utils.sendErrorMessage(frame, "fuck off");
+            Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
             return;
         }
 
@@ -509,12 +510,12 @@ public class Main extends JFrame {
         if (!newEnt.hasValidEntry()) return;
 
         inv.addEntretien(newEnt.getDate(), newEnt.getDescription());
-        updateEntretien(inv);
+        updateTabEnt(inv);
     }
 
     private void btnDelEntAction() {
         if (!isLoaded) {
-            Utils.sendErrorMessage(frame, "fuck off");
+            Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
             return;
         }
 
@@ -526,17 +527,18 @@ public class Main extends JFrame {
         LocalDate key = (LocalDate) tabEntretien.getValueAt(rowEnt, 0);
 
         inv.delEntretien(key);
-        updateEntretien(inv);
+        updateTabEnt(inv);
     }
 
     // --- Méthodes --- //
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         new Main();
     }
 
     private void openedInventory() {
         String fileName = fichier.getName();
-        if (!fileName.endsWith("dat")) fileName = fileName.concat(".dat");
+        if (!fileName.endsWith(".dat")) fileName = fileName.concat(".dat");
 
         isLoaded = true;
         frame.setTitle(fileName + " " + title);
@@ -545,7 +547,7 @@ public class Main extends JFrame {
 
     private void saveData() throws IOException {
         String filePath = fichier.getPath();
-        if (!filePath.endsWith("dat")) filePath = filePath.concat(".dat");
+        if (!filePath.endsWith(".dat")) filePath = filePath.concat(".dat");
 
         ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(filePath));
         output.writeObject(ListeInventaire);
@@ -575,33 +577,33 @@ public class Main extends JFrame {
         writer.close();
     }
 
-    private boolean fileAlreadyLoadedIn() throws IOException {
+    private boolean fileAlreadyLoaded() throws IOException {
         if (!isLoaded) return false;
 
         int rep = JOptionPane.showConfirmDialog(frame, "Voulez-vous sauvegarder?", "Confirmation de sauvegarde", JOptionPane.YES_NO_CANCEL_OPTION);
         if (rep == JOptionPane.CANCEL_OPTION) return true;
         if (rep == JOptionPane.YES_OPTION) saveData();
 
-        resetApp();
+        closeFile();
         return false;
     }
 
-    private void updateInventaire() {
+    private void updateTabInv() {
         mdlInventaire.setRowCount(0);
         for (Inventaire inventaire : ListeInventaire) mdlInventaire.addRow(inventaire.toObject());
     }
 
-    private void updateEntretien(Inventaire inv) {
+    private void updateTabEnt(Inventaire inv) {
         mdlEntretien.setRowCount(0);
         inv.getEntretiens().forEach((date, desc) -> mdlEntretien.addRow(new Object[]{date, desc}));
     }
 
     private void refreshApp() {
-        updateInventaire();
+        updateTabInv();
         mdlEntretien.setRowCount(0);
     }
 
-    private void resetApp() {
+    private void closeFile() {
         isLoaded = false;
         ListeInventaire.clear();
         frame.setTitle(title);
@@ -609,7 +611,7 @@ public class Main extends JFrame {
     }
 
     private void exitApp() throws IOException {
-        if (fileAlreadyLoadedIn()) return;
+        if (fileAlreadyLoaded()) return;
 
         int quitConfirm = JOptionPane.showConfirmDialog(frame, "Voulez-vous quitter?", "Confirmation de fermeture", JOptionPane.YES_NO_CANCEL_OPTION);
         if (quitConfirm != JOptionPane.YES_OPTION) return;
