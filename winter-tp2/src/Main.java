@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.regex.PatternSyntaxException;
 
-public class Main extends JFrame {
+public class Main extends JFrame implements Constant {
     private ArrayList<Inventaire> ListeInventaire = new ArrayList<>(); // Liste des inventaires
     private File fichier; // Le fichier en cours
     private boolean isLoaded = false; // Si un fichier est en cours
@@ -33,8 +33,8 @@ public class Main extends JFrame {
 
     JButton btnAddInv, btnDelInv, btnAddEnt, btnDelEnt, btnQuit;
 
-    Dimension dimTxf = Constant.DIMENSION_TEXT_FIELD;
-    Dimension dimBtn = Constant.DIMENSION_BUTTON;
+    Dimension dimTxf = DIMENSION_TEXT_FIELD;
+    Dimension dimBtn = DIMENSION_BUTTON;
     Dimension dimNorth = new Dimension(1300, 40);
     Dimension dimEast = new Dimension(500, 700);
     Dimension dimWest = new Dimension(800, 700);

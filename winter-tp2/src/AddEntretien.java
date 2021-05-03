@@ -1,5 +1,4 @@
 import com.toedter.calendar.JDateChooser;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -7,7 +6,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
-public class AddEntretien extends JDialog {
+public class AddEntretien extends JDialog implements Constant {
     private boolean validEntry = false;
     private String description;
     private LocalDate date;
@@ -22,9 +21,9 @@ public class AddEntretien extends JDialog {
 
     JPanel panBas;
 
-    Dimension dimBtn = Constant.DIMENSION_BUTTON;
-    Dimension dimLab = Constant.DIMENSION_TEXT_LABEL;
-    Dimension dimTxa = Constant.DIMENSION_TEXT_AREA;
+    Dimension dimBtn = DIMENSION_BUTTON;
+    Dimension dimLab = DIMENSION_TEXT_LABEL;
+    Dimension dimTxa = DIMENSION_TEXT_AREA;
     Dimension dimBas = new Dimension(400, 50);
 
     public AddEntretien() {
