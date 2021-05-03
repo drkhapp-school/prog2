@@ -479,16 +479,20 @@ public class Main extends JFrame implements Constant {
      * Modifie un inventaire dans la liste d'inventaire
      */
     private void modifyInventaire() {
-        int row = tabInventaire.convertRowIndexToModel(tabInventaire.getSelectedRow()); // Ligne de l'inventaire à modifier
-        Inventaire inv = ListeInventaire.get(row); // Inventaire à modifier
+        int row = tabInventaire.getSelectedRow(); // Ligne de l'inventaire à modifier
+        Inventaire inv = ListeInventaire.get(tabInventaire.convertRowIndexToModel(row)); // Inventaire à modifier
 
         ModifInventaire invModif = new ModifInventaire(inv);
         // La modification retournée n'est pas valide
         if (!invModif.hasValidEntry()) return;
 
         inv.modify(invModif.getNom(), invModif.getDescription(), invModif.getCategorie(), invModif.getDate(), invModif.getNbSerie(), invModif.getPrix());
-
         updateTabInv();
+
+        row = tabInventaire.convertRowIndexToView(ListeInventaire.indexOf(inv));
+        // Ligne pas dans le tableau (eg. il est filtrer)
+        if (row == -1) return;
+
         tabInventaire.setRowSelectionInterval(row, row);
         tabInventaireSelectionChange();
     }
