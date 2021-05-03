@@ -44,7 +44,7 @@ public class Main extends JFrame {
 
     public Main() {
         frame = new JFrame(title);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setSize(1325, 800);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
