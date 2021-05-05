@@ -1,4 +1,5 @@
 import com.toedter.calendar.JDateChooser;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -7,7 +8,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Objects;
 
-public class ModifInventaire extends JDialog implements Constant {
+public class ModifInventaire extends JDialog {
     private boolean validEntry = false;
     private String nom;
     private String nbSerie;
@@ -34,12 +35,12 @@ public class ModifInventaire extends JDialog implements Constant {
 
     JPanel panBas;
 
-    String[] categories = CATEGORY_NAMES;
+    String[] categories = Constant.CATEGORY_NAMES;
 
-    Dimension dimTxf = DIMENSION_TEXT_FIELD;
-    Dimension dimBtn = DIMENSION_BUTTON;
-    Dimension dimLab = DIMENSION_TEXT_LABEL;
-    Dimension dimTxa = DIMENSION_TEXT_AREA;
+    Dimension dimTxf = Constant.DIMENSION_TEXT_FIELD;
+    Dimension dimBtn = Constant.DIMENSION_BUTTON;
+    Dimension dimLab = Constant.DIMENSION_TEXT_LABEL;
+    Dimension dimTxa = Constant.DIMENSION_TEXT_AREA;
     Dimension dimBas = new Dimension(400, 50);
 
     public ModifInventaire(Inventaire inv) {
