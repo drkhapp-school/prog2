@@ -25,7 +25,7 @@ public class Utils {
      * @return vrai si il y a une erreur
      */
     public static boolean invalidData(String text, double prix) {
-        return text.isBlank() || new BigDecimal(String.valueOf(prix)).scale() > 2;
+        return text.isBlank() || new BigDecimal(String.valueOf(prix)).scale() > 2 || prix < 0;
     }
 
     /**

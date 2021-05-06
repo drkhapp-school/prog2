@@ -20,7 +20,7 @@ public class Main extends JFrame {
     private ArrayList<Inventaire> ListeInventaire = new ArrayList<>(); // Liste des inventaires
     private File fichier; // Le fichier en cours
     private boolean isLoaded = false; // Si un fichier est en cours
-    private final String title = "Jean-Philippe Miguel-Gagnon"; // Titre de l'application
+    private final String title = "Jean-Philippe Miguel-Gagnon - 1927230"; // Titre de l'application
     private final String[] colInventaire = {"Nom", "Catégorie", "Prix", "Date achat", "Description"}; // Nom des colonnes pour tabInventaire
     private final String[] colEntretien = {"Date", "Description"}; // Nom des colonnes pour tabEntretien
 
@@ -470,7 +470,7 @@ public class Main extends JFrame {
         // L'inventaire retournée n'est pas valid
         if (!newInv.hasValidEntry()) return;
 
-        inv = new Inventaire(newInv.getNom(), newInv.getDescription(), newInv.getCategorie(), newInv.getDate(), newInv.getNbSerie(), newInv.getPrix());
+        inv = new Inventaire(newInv.getNom(), newInv.getDescription(), newInv.getCategorie(), newInv.getNbSerie(), newInv.getDate(), newInv.getPrix());
         ListeInventaire.add(inv);
         updateTabInv();
 
@@ -634,11 +634,15 @@ public class Main extends JFrame {
         if (!isLoaded) return false;
 
         int rep = JOptionPane.showConfirmDialog(frame, "Voulez-vous sauvegarder?", "Confirmation de sauvegarde", JOptionPane.YES_NO_CANCEL_OPTION);
-        if (rep == JOptionPane.CANCEL_OPTION) return true;
-        if (rep == JOptionPane.YES_OPTION) saveData();
-
-        closeFile();
-        return false;
+        switch (rep) {
+            case JOptionPane.YES_OPTION:
+                saveData();
+            case JOptionPane.NO_OPTION:
+                closeFile();
+                return false;
+            default:
+                return true;
+        }
     }
 
     /**
@@ -651,6 +655,7 @@ public class Main extends JFrame {
 
     /**
      * Mis à jour du tableau d'entretien
+     *
      * @param inv l'inventaire contenant les entretiens
      */
     private void updateTabEnt(Inventaire inv) {

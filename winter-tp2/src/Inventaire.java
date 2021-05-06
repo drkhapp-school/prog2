@@ -23,11 +23,11 @@ public class Inventaire implements Serializable {
      * @param nom le nom de l'inventaire
      * @param description la description de l'inventaire
      * @param categorie la catégorie de l'inventaire
-     * @param date la date de l'achat
      * @param nbSerie le numéro de série
+     * @param date la date de l'achat
      * @param prix le prix de l'inventaire
      */
-    public Inventaire(String nom, String description, String categorie, LocalDate date, String nbSerie, double prix) {
+    public Inventaire(String nom, String description, String categorie, String nbSerie, LocalDate date, double prix) {
         this.nom = nom;
         this.description = description;
         this.categorie = categorie;
