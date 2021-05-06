@@ -1,3 +1,10 @@
+/**
+ * Objectif: Créer et maintenir une liste d'inventaire
+ *
+ * @author: Jean-Philippe Miguel-Gagnon - 1927230
+ * @since: Session H2021
+ */
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;

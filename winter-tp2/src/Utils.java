@@ -1,10 +1,17 @@
+/**
+ * Objectif: Méthodes utilitaires pour la classe Main et les classes de dialogues
+ *
+ * @author: Jean-Philippe Miguel-Gagnon - 1927230
+ * @since: Session H2021
+ */
+
 import javax.swing.*;
 import java.math.BigDecimal;
 
 public class Utils {
     /**
      * Génère un message d'erreur selon le contexte
-     *
+     * @param frame le frame à montrer le message d'erreur
      * @param message le message d'erreur à montrer
      */
     public static void sendErrorMessage(java.awt.Component frame, String message) {

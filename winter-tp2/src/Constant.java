@@ -1,3 +1,10 @@
+/**
+ * Objectif: Constantes pour les components Swing
+ *
+ * @author: Jean-Philippe Miguel-Gagnon - 1927230
+ * @since: Session H2021
+ */
+
 import java.awt.*;
 
 public class Constant {

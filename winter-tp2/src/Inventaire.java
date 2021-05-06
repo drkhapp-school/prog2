@@ -1,3 +1,10 @@
+/**
+ * Objectif: Constantes pour les components Swing
+ *
+ * @author: Jean-Philippe Miguel-Gagnon - 1927230
+ * @since: Session H2021
+ */
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
@@ -29,65 +36,6 @@ public class Inventaire implements Serializable {
         this.prix = prix;
         this.entretiens = new LinkedHashMap<>();
     }
-
-    /**
-     * Récupère le nom de l'inventaire
-     * @return le nom
-     */
-    public String getNom() {
-        return nom;
-    }
-
-    /**
-     * Récupère la description de l'inventaire
-     * @return la description
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * Récupère la description de l'inventaire
-     * @return la description
-     */
-    public String getCategorie() {
-        return categorie;
-    }
-
-    /**
-     * Récupère la date de l'achat de l'inventaire
-     * @return la date de l'achat
-     */
-    public LocalDate getDate() {
-        return date;
-    }
-
-    /**
-     * Récupère le numéro de série de l'inventaire
-     * @return le numéro de série
-     */
-    public String getNbSerie() {
-        return nbSerie;
-    }
-
-    /**
-     * Récupère le numéro de série de l'inventaire
-     * @return le prix
-     */
-    public double getPrix() {
-        return prix;
-    }
-
-    /**
-     * Créer un objet de l'inventaire pour le mettre dans le tableau d'inventaire
-     * @return l'objet
-     */
-    public Object[] toObject() {
-        return new Object[]{
-                nom, categorie, prix, date, description
-        };
-    }
-
     /**
      * Modifie l'inventaire avec des nouvelles données
      * @param nom nom à remplacer
@@ -107,15 +55,56 @@ public class Inventaire implements Serializable {
     }
 
     /**
-     * Récupère les entretiens d'un inventaire
-     * @return les entretiens
+     * @return le nom de l'inventaire
+     */
+    public String getNom() {
+        return nom;
+    }
+
+    /**
+     * @return la description de l'inventaire
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @return la description de l'inventaire
+     */
+    public String getCategorie() {
+        return categorie;
+    }
+
+    /**
+     * @return la date de l'achat de l'inventaire
+     */
+    public LocalDate getDate() {
+        return date;
+    }
+
+    /**
+     * @return le numéro de série de l'inventaire
+     */
+    public String getNbSerie() {
+        return nbSerie;
+    }
+
+    /**
+     * @return le prix
+     */
+    public double getPrix() {
+        return prix;
+    }
+
+    /**
+     * @return les entretiens de l'inventaire
      */
     public LinkedHashMap<LocalDate, String> getEntretiens() {
         return entretiens;
     }
 
     /**
-     * Ajoute un entretien à un inventaire
+     * Ajouter un entretien à un inventaire
      * @param date la date de l'entretien
      * @param description la description de l'entretien
      */
@@ -124,7 +113,7 @@ public class Inventaire implements Serializable {
     }
 
     /**
-     * Supprime un entretien à un inventaire
+     * Supprimer un entretien à un inventaire
      * @param date la date de l'entretien
      */
     public void delEntretien(LocalDate date) {
@@ -149,5 +138,15 @@ public class Inventaire implements Serializable {
         entretiens.forEach((date, desc) -> sb.append(date).append(", ").append(desc).append("\n"));
 
         return sb.toString();
+    }
+
+    /**
+     * Créer un objet de l'inventaire pour le mettre dans le tableau d'inventaire
+     * @return l'inventaire en objet
+     */
+    public Object[] toObject() {
+        return new Object[]{
+                nom, categorie, prix, date, description
+        };
     }
 }

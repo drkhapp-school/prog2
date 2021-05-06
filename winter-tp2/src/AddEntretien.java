@@ -1,3 +1,10 @@
+/**
+ * Objectif: Créer un dialogue pour l'ajout d'un entretien
+ *
+ * @author: Jean-Philippe Miguel-Gagnon - 1927230
+ * @since: Session H2021
+ */
+
 import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
@@ -8,9 +15,9 @@ import java.time.ZoneId;
 import java.util.Date;
 
 public class AddEntretien extends JDialog {
-    private boolean validEntry = false;
-    private String description;
-    private LocalDate date;
+    private boolean validEntry = false; // Si l'entrée est valid
+    private String description; // Description du nouvel inventaire
+    private LocalDate date; // Date du nouvel inventaire
 
     JDialog dialog;
     JLabel labDate;

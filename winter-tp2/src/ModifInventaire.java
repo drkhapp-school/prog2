@@ -1,5 +1,11 @@
-import com.toedter.calendar.JDateChooser;
+/**
+ * Objectif: Créer un dialogue pour la modification d'un inventaire
+ *
+ * @author: Jean-Philippe Miguel-Gagnon - 1927230
+ * @since: Session H2021
+ */
 
+import com.toedter.calendar.JDateChooser;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -9,13 +15,13 @@ import java.util.Date;
 import java.util.Objects;
 
 public class ModifInventaire extends JDialog {
-    private boolean validEntry = false;
-    private String nom;
-    private String nbSerie;
-    private String categorie;
-    private double prix;
-    private String description;
-    private LocalDate date;
+    private boolean validEntry = false; // Si l'entrée est valid
+    private String nom; // Nom du nouvel inventaire
+    private String nbSerie; // Numéro de série du nouvel inventaire
+    private String categorie; // Catégorie du nouvel inventaire
+    private String description; // Description du nouvel inventaire
+    private LocalDate date; // Date du nouvel inventaire
+    private double prix; // Prix du nouvel inventaire
 
     JDialog dialog;
     JLabel labNom;
@@ -100,7 +106,7 @@ public class ModifInventaire extends JDialog {
 
         btnAnnuler = new JButton("Annuler");
         btnAnnuler.setPreferredSize(dimBtn);
-        btnAnnuler.addActionListener(e -> btnAnnulerAction());
+        btnAnnuler.addActionListener(e -> dialog.dispose());
 
         panBas.add(btnModifier);
         panBas.add(btnAnnuler);
@@ -124,8 +130,11 @@ public class ModifInventaire extends JDialog {
 
     }
 
+    /**
+     * Vérifie si l'entrée est valide, faire un message d'erreur si il y a une entrée invalide
+     */
     private void btnModifierAction() {
-        try{
+        try {
             nom = txfNom.getText();
             nbSerie = txfSerie.getText();
             categorie = Objects.requireNonNull(cmbCat.getSelectedItem()).toString();
@@ -138,39 +147,56 @@ public class ModifInventaire extends JDialog {
 
             validEntry = true;
             dialog.dispose();
-        } catch(IllegalArgumentException | NullPointerException e){
+        } catch (IllegalArgumentException | NullPointerException e) {
             Utils.sendErrorMessage(dialog, "Erreur de donnée!");
         }
     }
 
-    private void btnAnnulerAction() {
-        dialog.dispose();
-    }
-
+    /**
+     * @return vrai si l'entrée est valide, sinon faux
+     */
     public boolean hasValidEntry() {
         return validEntry;
     }
 
+    /**
+     * @return le nom de l'inventaire modifié
+     */
     public String getNom() {
         return nom;
     }
 
+    /**
+     * @return le numéro de série de l'inventaire modifié
+     */
     public String getNbSerie() {
         return nbSerie;
     }
 
+    /**
+     * @return la catégorie de l'inventaire modifié
+     */
     public String getCategorie() {
         return categorie;
     }
 
+    /**
+     * @return le prix de l'inventaire modifié
+     */
     public double getPrix() {
         return prix;
     }
 
+    /**
+     * @return la description de l'inventaire modifié
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * @return la date de l'inventaire modifié
+     */
     public LocalDate getDate() {
         return date;
     }
