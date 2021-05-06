@@ -47,7 +47,9 @@ public class Main extends JFrame {
     Dimension dimWest = new Dimension(800, 700);
     Dimension dimSouth = new Dimension(1300, 50);
 
-    // --- Constructeur --- //
+//
+// Constructeur
+//
 
     public Main() {
         frame = new JFrame(title);
@@ -291,7 +293,9 @@ public class Main extends JFrame {
         frame.add(panSouth, BorderLayout.SOUTH);
     }
 
-    // --- Action Listeners --- //
+//
+// Action Listeners
+//
 
     /**
      * Mis à jour du tableau d'entretien selon la ligne sélectionnée
@@ -306,7 +310,10 @@ public class Main extends JFrame {
         updateTabEnt(ListeInventaire.get(tabInventaire.convertRowIndexToModel(row)));
     }
 
-    // --- Bar de Menu: TP2 --- //
+
+//
+// Action Listeners - Bar de menu
+//
 
     /**
      * Afficher l'information sur l'application
@@ -321,8 +328,6 @@ public class Main extends JFrame {
     private void miQuitAction() {
         exitApp();
     }
-
-    // --- Bar de Menu: Fichier --- //
 
     /**
      * Ouvrir un inventaire existant
@@ -426,7 +431,9 @@ public class Main extends JFrame {
         saveExport(output);
     }
 
-    // --- Action Listeners des boutons --- //
+//
+// Action Listeners - Boutons
+//
 
     /**
      * Filtrer le tableau selon le filtre donner
@@ -454,7 +461,9 @@ public class Main extends JFrame {
         exitApp();
     }
 
-    // --- Inventaire --- //
+//
+// Action Listeners - Inventaire
+//
 
     /**
      * Ajout d'un nouvel inventaire dans la liste d'inventaire
@@ -523,7 +532,9 @@ public class Main extends JFrame {
         tabInventaireSelectionChange();
     }
 
-    // --- Entretien --- //
+//
+// Action Listeners - Entretien
+//
 
     /**
      * Ajout d'un entretien dans l'inventaire sélectionnée
@@ -573,7 +584,11 @@ public class Main extends JFrame {
         updateTabEnt(inv);
     }
 
-    // --- Méthodes --- //
+
+//
+// Méthodes
+//
+
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         new Main();
@@ -623,6 +638,19 @@ public class Main extends JFrame {
         } catch (IOException e) {
             Utils.sendErrorMessage(frame, "Erreur de sauvegarde");
         }
+    }
+
+    /**
+     * Vérifie si il n'a pas de fichier ouvert
+     *
+     * @return true si un fichier est ouvert, sinon false
+     */
+    private boolean isNotOpen() {
+        if (!isLoaded) {
+            Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -704,18 +732,5 @@ public class Main extends JFrame {
         if (quitConfirm != JOptionPane.YES_OPTION) return;
 
         System.exit(0);
-    }
-
-    /**
-     * Vérifie si il n'a pas de fichier ouvert
-     *
-     * @return true si un fichier est ouvert, sinon false
-     */
-    private boolean isNotOpen() {
-        if (!isLoaded) {
-            Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
-            return true;
-        }
-        return false;
     }
 }

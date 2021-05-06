@@ -36,6 +36,7 @@ public class Inventaire implements Serializable {
         this.prix = prix;
         this.entretiens = new LinkedHashMap<>();
     }
+
     /**
      * Modifie l'inventaire avec des nouvelles données
      * @param nom nom à remplacer
