@@ -20,14 +20,12 @@ public class AddEntretien extends JDialog {
     private LocalDate date; // Date du nouvel inventaire
 
     JDialog dialog;
-    JLabel labDate;
-    JLabel labDesc;
+    JPanel panButton;
+
+    JLabel labDate, labDesc;
     JTextArea txaDesc;
     JDateChooser dateChooser;
-    JButton btnAjouter;
-    JButton btnAnnuler;
-
-    JPanel panBas;
+    JButton btnAjouter, btnAnnuler;
 
     Dimension dimBtn = Constant.DIMENSION_BUTTON;
     Dimension dimLab = Constant.DIMENSION_TEXT_LABEL;
@@ -43,9 +41,9 @@ public class AddEntretien extends JDialog {
         dialog.setLayout(new FlowLayout());
         Border Bordure = BorderFactory.createLineBorder(Color.BLACK, 1);
 
-        panBas = new JPanel();
-        panBas.setLayout(new FlowLayout(FlowLayout.CENTER));
-        panBas.setPreferredSize(dimBas);
+        panButton = new JPanel();
+        panButton.setLayout(new FlowLayout(FlowLayout.CENTER));
+        panButton.setPreferredSize(dimBas);
 
         labDate = new JLabel("*Date:");
         labDate.setPreferredSize(dimLab);
@@ -68,15 +66,15 @@ public class AddEntretien extends JDialog {
         btnAnnuler.setPreferredSize(dimBtn);
         btnAnnuler.addActionListener(e -> btnAnnulerAction());
 
-        panBas.add(btnAjouter);
-        panBas.add(btnAnnuler);
+        panButton.add(btnAjouter);
+        panButton.add(btnAnnuler);
 
         dialog.add(labDate);
         dialog.add(dateChooser);
         dialog.add(labDesc);
         dialog.add(txaDesc);
 
-        dialog.add(panBas);
+        dialog.add(panButton);
 
         dialog.setVisible(true);
 

@@ -24,22 +24,14 @@ public class ModifInventaire extends JDialog {
     private double prix; // Prix du nouvel inventaire
 
     JDialog dialog;
-    JLabel labNom;
-    JTextField txfNom;
-    JLabel labSerie;
-    JTextField txfSerie;
-    JLabel labCat;
+    JPanel panButton;
+
+    JLabel labNom, labSerie, labCat, labPrix, labDate, labDesc;
+    JTextField txfNom, txfSerie, txfPrix;
     JComboBox<String> cmbCat;
-    JLabel labPrix;
-    JTextField txfPrix;
-    JLabel labDate;
-    JLabel labDesc;
     JTextArea txaDesc;
     JDateChooser dateChooser;
-    JButton btnModifier;
-    JButton btnAnnuler;
-
-    JPanel panBas;
+    JButton btnModifier, btnAnnuler;
 
     String[] categories = Constant.CATEGORY_NAMES;
 
@@ -58,9 +50,9 @@ public class ModifInventaire extends JDialog {
         dialog.setLayout(new FlowLayout());
         Border Bordure = BorderFactory.createLineBorder(Color.BLACK, 1);
 
-        panBas = new JPanel();
-        panBas.setLayout(new FlowLayout(FlowLayout.CENTER));
-        panBas.setPreferredSize(dimBas);
+        panButton = new JPanel();
+        panButton.setLayout(new FlowLayout(FlowLayout.CENTER));
+        panButton.setPreferredSize(dimBas);
 
         labNom = new JLabel("*Nom:");
         labNom.setPreferredSize(dimLab);
@@ -108,8 +100,8 @@ public class ModifInventaire extends JDialog {
         btnAnnuler.setPreferredSize(dimBtn);
         btnAnnuler.addActionListener(e -> dialog.dispose());
 
-        panBas.add(btnModifier);
-        panBas.add(btnAnnuler);
+        panButton.add(btnModifier);
+        panButton.add(btnAnnuler);
 
         dialog.add(labNom);
         dialog.add(txfNom);
@@ -124,7 +116,7 @@ public class ModifInventaire extends JDialog {
         dialog.add(labDesc);
         dialog.add(txaDesc);
 
-        dialog.add(panBas);
+        dialog.add(panButton);
 
         dialog.setVisible(true);
 
