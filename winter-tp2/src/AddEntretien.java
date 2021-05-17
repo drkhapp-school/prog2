@@ -64,7 +64,7 @@ public class AddEntretien extends JDialog {
 
         btnAnnuler = new JButton("Annuler");
         btnAnnuler.setPreferredSize(dimBtn);
-        btnAnnuler.addActionListener(e -> btnAnnulerAction());
+        btnAnnuler.addActionListener(e -> dialog.dispose());
 
         panButton.add(btnAjouter);
         panButton.add(btnAnnuler);
@@ -79,6 +79,10 @@ public class AddEntretien extends JDialog {
         dialog.setVisible(true);
 
     }
+
+    /**
+     * Vérifie si l'entrée est valide, faire un message d'erreur si il y a une entrée invalide
+     */
     private void btnAjouterAction() {
         try{
             description = txaDesc.getText();
@@ -94,20 +98,24 @@ public class AddEntretien extends JDialog {
         }
     }
 
+    /**
+     * @return vrai si l'entrée est valide, sinon faux
+     */
     public boolean hasValidEntry() {
         return validEntry;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
+    /**
+     * @return la date du nouvel inventaire
+     */
     public LocalDate getDate() {
         return date;
     }
 
-    private void btnAnnulerAction() {
-        dialog.dispose();
+    /**
+     * @return la description du nouvel inventaire
+     */
+    public String getDescription() {
+        return description;
     }
-
 }

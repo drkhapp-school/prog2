@@ -301,13 +301,11 @@ public class Main extends JFrame {
      * Mis à jour du tableau d'entretien selon la ligne sélectionnée
      */
     private void tabInventaireSelectionChange() {
-        int row = tabInventaire.getSelectedRow();
-        if (row == -1) {
+        int row = tabInventaire.getSelectedRow(); // ligne selectionnée
+        if (row == -1) 
             mdlEntretien.setRowCount(0);
-            return;
-        }
-
-        updateTabEnt(ListeInventaire.get(tabInventaire.convertRowIndexToModel(row)));
+        else 
+            updateTabEnt(ListeInventaire.get(tabInventaire.convertRowIndexToModel(row)));
     }
 
 
@@ -442,16 +440,14 @@ public class Main extends JFrame {
         String text = txfFilter.getText();
         if (text.isBlank()) {
             sorter.setRowFilter(null);
-            return;
+        } else {
+            try {
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)".concat(text)));
+                tabInventaire.getSelectionModel().clearSelection();
+            } catch (PatternSyntaxException e) {
+                Utils.sendErrorMessage(frame, "Erreur de filtre");
+            }
         }
-
-        try {
-            sorter.setRowFilter(RowFilter.regexFilter(text));
-            tabInventaire.getSelectionModel().clearSelection();
-        } catch (PatternSyntaxException e) {
-            Utils.sendErrorMessage(frame, "Erreur de filtre");
-        }
-
     }
 
     /**
@@ -611,6 +607,24 @@ public class Main extends JFrame {
     }
 
     /**
+     * Exporter la liste d'inventaire dans un fichier .txt
+     * @param fileName le nom du fichier
+     */
+    private void saveExport(String fileName) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false));
+            for (Inventaire inv : ListeInventaire) {
+                writer.write(inv.toString());
+                writer.newLine();
+            }
+
+            writer.close();
+        } catch (IOException e) {
+            Utils.sendErrorMessage(frame, "Erreur de sauvegarde");
+        }
+    }
+
+    /**
      * Lecture d'un fichier .dat pour insérer dans la liste d'inventaire
      */
     @SuppressWarnings("unchecked")
@@ -621,22 +635,6 @@ public class Main extends JFrame {
             input.close();
         } catch (ClassNotFoundException | IOException e) {
             Utils.sendErrorMessage(frame, "Erreur de lecture");
-        }
-    }
-
-    /**
-     * Exporter la liste d'inventaire dans un fichier .txt
-     */
-    private void saveExport(String fileName) {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, false));
-            for (Inventaire inv : ListeInventaire) {
-                writer.write(inv.toString());
-                writer.newLine();
-            }
-            writer.close();
-        } catch (IOException e) {
-            Utils.sendErrorMessage(frame, "Erreur de sauvegarde");
         }
     }
 

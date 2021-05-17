@@ -1,5 +1,5 @@
 /**
- * Objectif: Constantes pour les components Swing
+ * Objectif: Classe d'inventaire
  *
  * @author: Jean-Philippe Miguel-Gagnon - 1927230
  * @since: Session H2021
