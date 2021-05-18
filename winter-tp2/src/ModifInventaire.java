@@ -42,7 +42,7 @@ public class ModifInventaire extends JDialog {
     Dimension dimBas = new Dimension(400, 50);
 
     public ModifInventaire(Inventaire inv) {
-        dialog = new JDialog((JDialog) null, "Modif Inventaire", true);
+        dialog = new JDialog((JDialog) null, "Modification Inventaire", true);
         dialog.setSize(400, 425);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(null);
@@ -60,7 +60,7 @@ public class ModifInventaire extends JDialog {
         txfNom = new JTextField(inv.getNom());
         txfNom.setPreferredSize(dimTxf);
 
-        labSerie = new JLabel("No série:");
+        labSerie = new JLabel("No. série:");
         labSerie.setPreferredSize(dimLab);
 
         txfSerie = new JTextField(inv.getNbSerie());
@@ -91,8 +91,9 @@ public class ModifInventaire extends JDialog {
         txaDesc = new JTextArea(inv.getDescription());
         txaDesc.setPreferredSize(dimTxa);
         txaDesc.setBorder(Bordure);
+        txaDesc.setLineWrap(true);
 
-        btnModifier = new JButton("Ajouter");
+        btnModifier = new JButton("Modifier");
         btnModifier.setPreferredSize(dimBtn);
         btnModifier.addActionListener(e -> btnModifierAction());
 

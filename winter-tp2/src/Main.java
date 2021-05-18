@@ -51,6 +51,9 @@ public class Main extends JFrame {
 // Constructeur
 //
 
+    /**
+     * Constructeur de l'application
+     */
     public Main() {
         frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -301,11 +304,7 @@ public class Main extends JFrame {
      * Mis à jour du tableau d'entretien selon la ligne sélectionnée
      */
     private void tabInventaireSelectionChange() {
-        int row = tabInventaire.getSelectedRow(); // ligne selectionnée
-        if (row == -1) 
-            mdlEntretien.setRowCount(0);
-        else 
-            updateTabEnt(ListeInventaire.get(tabInventaire.convertRowIndexToModel(row)));
+        updateTabEnt();
     }
 
 
@@ -344,8 +343,7 @@ public class Main extends JFrame {
 
         fichier = fc.getSelectedFile();
 
-        readData();
-        openedFile();
+        if (readData()) openedFile();
     }
 
     /**
@@ -365,8 +363,7 @@ public class Main extends JFrame {
 
         fichier = fc.getSelectedFile();
 
-        saveData();
-        openedFile();
+        if (saveData()) openedFile();
     }
 
     /**
@@ -404,8 +401,7 @@ public class Main extends JFrame {
 
         fichier = fc.getSelectedFile();
 
-        saveData();
-        openedFile();
+        if (saveData()) openedFile();
     }
 
     /**
@@ -437,7 +433,7 @@ public class Main extends JFrame {
      * Filtrer le tableau selon le filtre donner
      */
     private void btnFilterAction() {
-        String text = txfFilter.getText();
+        String text = txfFilter.getText(); // Texte à filtrer
         if (text.isBlank()) {
             sorter.setRowFilter(null);
         } else {
@@ -553,7 +549,7 @@ public class Main extends JFrame {
         if (!newEnt.hasValidEntry()) return;
 
         inv.addEntretien(newEnt.getDate(), newEnt.getDescription());
-        updateTabEnt(inv);
+        updateTabEnt();
     }
 
     /**
@@ -577,7 +573,7 @@ public class Main extends JFrame {
         key = (LocalDate) tabEntretien.getValueAt(rowEnt, 0);
 
         inv.delEntretien(key);
-        updateTabEnt(inv);
+        updateTabEnt();
     }
 
 
@@ -585,15 +581,15 @@ public class Main extends JFrame {
 // Méthodes
 //
 
-    public static void main(String[] args) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    public static void main(String[] args) {
         new Main();
     }
 
     /**
      * Sauvegarde de la liste d'inventaire dans un fichier .dat
+     * @return faux si il y a erreur de sauvegarde, sinon vrai
      */
-    private void saveData() {
+    private boolean saveData() {
         String filePath = fichier.getPath();
         if (!filePath.endsWith(".dat")) filePath = filePath.concat(".dat");
 
@@ -601,8 +597,10 @@ public class Main extends JFrame {
             ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(filePath));
             output.writeObject(ListeInventaire);
             output.close();
+            return true;
         } catch (IOException e) {
             Utils.sendErrorMessage(frame, "Erreur de sauvegarde");
+            return false;
         }
     }
 
@@ -626,15 +624,18 @@ public class Main extends JFrame {
 
     /**
      * Lecture d'un fichier .dat pour insérer dans la liste d'inventaire
+     * @return faux si il y a un erreur de lecture, sinon vrai
      */
     @SuppressWarnings("unchecked")
-    private void readData() {
+    private boolean readData() {
         try {
             ObjectInputStream input = new ObjectInputStream(new FileInputStream(fichier.getPath()));
             ListeInventaire = (ArrayList<Inventaire>) input.readObject();
             input.close();
+            return true;
         } catch (ClassNotFoundException | IOException e) {
             Utils.sendErrorMessage(frame, "Erreur de lecture");
+            return false;
         }
     }
 
@@ -644,11 +645,10 @@ public class Main extends JFrame {
      * @return true si un fichier est ouvert, sinon false
      */
     private boolean isNotOpen() {
-        if (!isLoaded) {
-            Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
-            return true;
-        }
-        return false;
+        if (isLoaded) return false;
+
+        Utils.sendErrorMessage(frame, "Aucun fichier d'ouvert.");
+        return true;
     }
 
     /**
@@ -682,10 +682,14 @@ public class Main extends JFrame {
     /**
      * Mis à jour du tableau d'entretien
      *
-     * @param inv l'inventaire contenant les entretiens
      */
-    private void updateTabEnt(Inventaire inv) {
+    private void updateTabEnt() {
         mdlEntretien.setRowCount(0);
+
+        int row = tabInventaire.getSelectedRow(); // ligne sélectionnée
+        if (row == -1) return;
+
+        Inventaire inv = ListeInventaire.get(tabInventaire.convertRowIndexToModel(row)); // l'inventaire sélectionnée
         inv.getEntretiens().forEach((date, desc) -> mdlEntretien.addRow(new Object[]{date, desc}));
     }
 

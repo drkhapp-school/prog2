@@ -12,7 +12,6 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
 
 public class AddEntretien extends JDialog {
     private boolean validEntry = false; // Si l'entrée est valid
@@ -48,7 +47,7 @@ public class AddEntretien extends JDialog {
         labDate = new JLabel("*Date:");
         labDate.setPreferredSize(dimLab);
 
-        dateChooser = new JDateChooser(new Date());
+        dateChooser = new JDateChooser();
         dateChooser.setPreferredSize(new Dimension(200, 30));
 
         labDesc = new JLabel("Description:");
@@ -57,6 +56,7 @@ public class AddEntretien extends JDialog {
         txaDesc = new JTextArea();
         txaDesc.setPreferredSize(dimTxa);
         txaDesc.setBorder(Bordure);
+        txaDesc.setLineWrap(true);
 
         btnAjouter = new JButton("Ajouter");
         btnAjouter.setPreferredSize(dimBtn);
