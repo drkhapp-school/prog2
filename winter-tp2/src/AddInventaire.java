@@ -39,7 +39,7 @@ public class AddInventaire extends JDialog {
     Dimension dimBtn = Constant.DIMENSION_BUTTON;
     Dimension dimLab = Constant.DIMENSION_TEXT_LABEL;
     Dimension dimTxa = Constant.DIMENSION_TEXT_AREA;
-    Dimension dimBas = new Dimension(400, 50);
+    Dimension dimBas = new Dimension(400, 50); // dimension cool
 
     public AddInventaire() {
         dialog = new JDialog((JDialog) null, "Ajout Inventaire", true);
